@@ -3,7 +3,7 @@
  */
 
 let {sqrt, cos, sin, tan, PI: pi} = Math;
-let vec2 = function(x,y) {
+let vec2 = function(x = 0, y = 0) {
     "use strict";
     return {
         x: x,
@@ -11,7 +11,7 @@ let vec2 = function(x,y) {
     };
 };
 
-let vec3 = function(x,y,z) {
+let vec3 = function(x = 0, y = 0, z = 0) {
     "use strict";
     return {
         x: x,
@@ -88,7 +88,7 @@ let mtx_ops = {
                     [m1[3][0] * m2[0][0] + m1[3][1] * m2[1][0] + m1[3][2] * m2[2][0] + m1[3][3] * m2[3][0],
                      m1[3][0] * m2[0][1] + m1[3][1] * m2[1][1] + m1[3][2] * m2[2][1] + m1[3][3] * m2[3][1],
                      m1[3][0] * m2[0][2] + m1[3][1] * m2[1][2] + m1[3][2] * m2[2][2] + m1[3][3] * m2[3][2],
-                     m1[3][0] * m2[0][3] + m1[3][1] * m2[1][3] + m1[3][2] * m2[2][3] + m1[3][3] * m2[3][3]],
+                     m1[3][0] * m2[0][3] + m1[3][1] * m2[1][3] + m1[3][2] * m2[2][3] + m1[3][3] * m2[3][3]]
             ])
     },
     mtx: mtx,
@@ -100,6 +100,7 @@ let mtx_ops = {
 
     flatten(m) {
         "use strict";
+
         let result = [];
         for (let i = 0; i < m[0].length; i += 1) {
             for (let j = 0; j < m.length; j += 1) {
@@ -138,25 +139,156 @@ let mtx_ops = {
                     [0,  0, -1,  0]]);
     },
 
-    translate(m, v) {
+    translation(v) {
         "use strict";
-        // preserve immutability
-        let result = mtx(m);
+        let result = this.i();
         let t = [
             v.x,
             v.y,
             (v.z) ? v.z : 0
         ];
 
-        result[0][3] += t[0];
-        result[1][3] += t[1];
-        result[2][3] += t[2];
+        result[0][3] = t[0];
+        result[1][3] = t[1];
+        result[2][3] = t[2];
+        return result;
+    },
+
+    scale(v) {
+        "use strict";
+        let result = this.i();
+        let t = [
+            v.x,
+            v.y,
+            (v.z) ? v.z : 0
+        ];
+
+        result[0][0] = t[0];
+        result[1][1] = t[1];
+        result[2][2] = t[2];
 
         return result;
+    },
+
+    // all rotations are about the z axis
+    rotation(r) {
+        "use strict";
+        let result = this.i();
+
+        result[0][0] =  cos(r);
+        result[0][1] =  sin(r);
+        result[1][0] = -sin(r);
+        result[1][1] =  cos(r);
+
+        return result;
+    },
+
+
+
+    // create a transformation matrix by chaining transformation methods together
+    compose() {
+        "use strict";
+        return {
+            __mtx: mtx_ops.i(),
+            done() {
+                return this.__mtx;
+            },
+            translate(v) {
+                this.__mtx = mtx_ops.mul(this.__mtx, mtx_ops.translation(v));
+                return this;
+            },
+            scale(v) {
+                this.__mtx = mtx_ops.mul(this.__mtx, mtx_ops.scale(v));
+                return this;
+            },
+            rotate(r) {
+                this.__mtx = mtx_ops.mul(this.__mtx, mtx_ops.rotation(r));
+                return this;
+            }
+
+        }
     }
 
 };
 
 
+let color = function (string_or_r = 0, g = 0, b = 0, a = 1) {
+    let r = 0;
 
-export {vec2, vec_ops as vMath, mtx_ops as mMath};
+    if (typeof string_or_r === 'string') {
+        let fullstr;
+
+        if (string_or_r.startsWith("rgba")) {
+
+            // string representation: "rgba(r,g,b,a)"
+            [fullstr, r, g, b, a] = string_or_r.match(/rgba\((\d+),(\d+),(\d+),(\d+)\)/)
+        } else if (string_or_r.startsWith("#")) {
+            if (string_or_r.length === 9) {
+
+                // string representation: "#RRGGBBAA"
+                [fullstr, r, g, b, a] = string_or_r.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/);
+
+            } else if (string_or_r.length == 5) {
+
+                // string representation: "#RGBA"
+                [fullstr, r, g, b, a] = string_or_r.match(/#([0-9a-f]{1})([0-9a-f]{1})([0-9a-f]{1})([0-9a-f]{1})/);
+
+                r = `${r}${r}`;
+                g = `${g}${g}`;
+                b = `${b}${b}`;
+                a = `${a}${a}`;
+            }
+
+            r = parseInt(r, 16) / 255.0;
+            g = parseInt(g, 16) / 255.0;
+            b = parseInt(b, 16) / 255.0;
+            a = parseInt(a, 16) / 255.0;
+        }
+    } else {
+
+        // otherwise assume it's a number
+        r = string_or_r;
+
+    }
+    return {
+        _r: r,
+        _g: g,
+        _b: b,
+        _a: a,
+        arr: [r, g, b, a],
+        get r() {
+            return this._r;
+        },
+        set r(r) {
+            this._r = r;
+            this.arr[0] = r;
+        },
+        get g() {
+            return this._g;
+        },
+        set g(g) {
+            this._g = g;
+            this.arr[1] = g;
+        },
+        get b() {
+            return this._b;
+        },
+        set b(b) {
+            this._b = b;
+            this.arr[2] = b;
+        },
+        get a() {
+            return this._a;
+        },
+        set a(a) {
+            this._a = a;
+            this.arr[3] = a;
+        },
+
+        toString() {
+            return `rgba(${this.r},${this.g},${this.b},${this.a})`;
+        }
+    };
+};
+
+export {vec2, vec_ops as vMath, mtx_ops as mMath, color};

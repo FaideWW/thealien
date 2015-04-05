@@ -26,16 +26,14 @@ export default class {
     constructor(options) {
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
-        let {canvasSelector: selector, fragmentShaderSelector: frags, vertexShaderSelector: verts,
+        let {canvasSelector: selector, shaders,
                 render, audio, event} = options;
 
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
         this.canvas          = getCanvasEl(selector);
-        let fragment_shaders = document.querySelectorAll(frags);
-        let vertex_shaders   = document.querySelectorAll(verts);
 
         if (!render) {
-            this.render = render || new WebGLRenderer(this.canvas, fragment_shaders, vertex_shaders);
+            this.render = render || new WebGLRenderer(this.canvas, shaders);
             if (!this.render.success) {
                 // fallback to canvas rendering
             }
