@@ -79,15 +79,18 @@ module.exports = function(grunt) {
       },
       babel: {
           options: {
-              sourceMap: true
+              sourceMap: true,
+              modules: "amd"
           },
           dist: {
-              files: {
-                  "dist/test.js": "src/test.js",
-                  "dist/game.js": "src/game.js",
-                  "dist/render.js": "src/render.js",
-                  "dist/entity.js": "src/entity.js"
+            files: [
+              {
+                expand: true,     // Enable dynamic expansion.
+                cwd: 'src/',      // Src matches are relative to this path.
+                src: ['**/*.js'], // Actual pattern(s) to match.
+                dest: 'dist/'   // Destination path prefix.
               }
+            ]
           }
       }
   });

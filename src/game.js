@@ -3,7 +3,8 @@
  */
 'use strict';
 
-import Entity from "entity.js";
+import Entity from "./entity.js";
+import {WebGLRenderer} from "./render.js";
 
 /**
  * class Game
@@ -25,13 +26,19 @@ export default class {
     constructor(options) {
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
-        let {canvasSelector: selector, render, audio, event} = options;
+        let {canvasSelector: selector, fragmentShaderSelector: frags, vertexShaderSelector: verts,
+                render, audio, event} = options;
 
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
-        this.canvas = getCanvasEl(selector);
+        this.canvas          = getCanvasEl(selector);
+        let fragment_shaders = document.querySelectorAll(frags);
+        let vertex_shaders   = document.querySelectorAll(verts);
 
         if (!render) {
-            // create render system
+            this.render = render || new WebGLRenderer(this.canvas, fragment_shaders, vertex_shaders);
+            if (!this.render.success) {
+                // fallback to canvas rendering
+            }
         }
 
         if (!audio) {
