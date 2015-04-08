@@ -1,4 +1,8 @@
-# thealien
+# Alien Engine
+
+Follow development [here](http://www.faide.net/)
+
+
 
 For the old (deprecated) alien engine code, visit:
 
