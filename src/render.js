@@ -5,17 +5,39 @@
 
 import {Component} from "./component.js";
 import {vMath, mMath, color} from "./utils.js";
+let  {floor} = Math;
 
 
 // TODO: implement untextured rect rendering
 class WebGLRenderer {
-    constructor(canvas_el, shader_programs) {
-        if (!canvas_el) {
+    constructor(opts) {
+        if (!(opts.el && opts.resolution)) {
             return;
         }
 
+        let {el: el,
+                shaders: shader_programs,
+                resolution: res
+                } = opts;
+
+        /* https://www.khronos.org/webgl/wiki/HandlingHighDPI */
+
+        el.style.width  = `${res.width}px`;
+        el.style.height = `${res.height}px`;
+
+        let device_pixel_ratio = window.devicePixelRatio || 1;
+
+        el.width  = res.width  * device_pixel_ratio;
+        el.height = res.height * device_pixel_ratio;
+
+        this._resolution = vMath.vec3(el.width, el.height, 1);
+        // used to send the resolution as a uniform variable to the vertex shader
+        this._resolution_array = new Float32Array([el.width, el.height, 1.0]);
+
+
+
         try {
-            this._ctx = canvas_el.getContext('webgl') || canvas_el.getContext("experimental-webgl");
+            this._ctx = el.getContext('webgl') || el.getContext("experimental-webgl");
         } catch (e) {
             console.error(e);
         }
@@ -45,7 +67,9 @@ class WebGLRenderer {
             }
         }
 
-        this._ctx.viewport(0, 0, canvas_el.width, canvas_el.height);
+
+
+        this._ctx.viewport(0, 0, this._resolution.x, this._resolution.y);
 
     }
 
@@ -61,7 +85,7 @@ class WebGLRenderer {
         gl.compileShader(shader);
 
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            //console.error(`Error compiling shader: ${ gl.getShaderInfoLog(shader) }. `);
+            console.error(`Error compiling shader: ${ gl.getShaderInfoLog(shader) }. `);
             return null;
         }
 
@@ -86,7 +110,7 @@ class WebGLRenderer {
         gl.linkProgram(program);
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error(`Error linking shader program`);
+            console.error(`Error linking shader program. `);
         }
 
         return program;
@@ -112,10 +136,10 @@ class WebGLRenderer {
 
         // set up projection matrix and transformation matrix
 
-        let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);
+        //let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);
+        let ortho_matrix = mMath.orthographic(0, this._resolution.x / 2, 0, this._resolution.y / 2, 0, 10);
 
         let transformation_matrix = mMath.compose()
-            .translate(vMath.vec3(-0.0, 0.0, -6.0))
             .translate(position);
 
         if (transform.rotate) {
@@ -128,7 +152,7 @@ class WebGLRenderer {
 
         // use subroutine to draw the shape
         if (renderable.type === 'rect') {
-            this._drawRect(renderable, perspective_matrix, transformation_matrix.done());
+            this._drawRect(renderable, ortho_matrix, transformation_matrix.done());
         }
     }
 
@@ -163,10 +187,14 @@ class WebGLRenderer {
         gl.vertexAttribPointer(vertex_color_attribute, 4, gl.FLOAT, false, 0, 0);
 
 
+        // declare uniform variables
         let pUniform = gl.getUniformLocation(shader, "uPMatrix");
         gl.uniformMatrix4fv(pUniform, false, new Float32Array(mMath.flatten(pMatrix)));
         let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mMath.flatten(tMatrix)));
+        let resUniform = gl.getUniformLocation(shader, "uResolution");
+        gl.uniform3fv(resUniform, this._resolution_array);
+
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

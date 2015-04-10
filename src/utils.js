@@ -139,6 +139,50 @@ let mtx_ops = {
                     [0,  0, -1,  0]]);
     },
 
+
+    //mat4.ortho = function(left, right, bottom, top, near, far, dest) {
+    //if(!dest) { dest = mat4.create(); }
+    //var rl = (right - left);
+    //var tb = (top - bottom);
+    //var fn = (far - near);
+    //dest[0] = 2 / rl;
+    //dest[1] = 0;
+    //dest[2] = 0;
+    //dest[3] = 0;
+    //dest[4] = 0;
+    //dest[5] = 2 / tb;
+    //dest[6] = 0;
+    //dest[7] = 0;
+    //dest[8] = 0;
+    //dest[9] = 0;
+    //dest[10] = -2 / fn;
+    //dest[11] = 0;
+    //dest[12] = -(left + right) / rl;
+    //dest[13] = -(top + bottom) / tb;
+    //dest[14] = -(far + near) / fn;
+    //dest[15] = 1;
+    //return dest;
+
+    orthographic(left, right, bottom, top, near, far) {
+        "use strict";
+        let rl = (right - left);
+        let tb = (top - bottom);
+        let fn = (far - near);
+
+        let X =  2 / rl;
+        let Y =  2 / tb;
+        let Z = -2 / fn;
+        let A = -(left + right) / rl;
+        let B = -(top + bottom) / tb;
+        let C = -(far + near)   / fn;
+
+
+        return mtx([[X, 0, 0, A],
+                    [0, Y, 0, B],
+                    [0, 0, Z, C],
+                    [0, 0, 0, 1]]);
+    },
+
     translation(v) {
         "use strict";
         let result = this.i();
