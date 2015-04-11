@@ -152,12 +152,12 @@ class WebGLRenderer {
 
         // use subroutine to draw the shape
         if (renderable.type === 'rect') {
-            this._drawRect(renderable, ortho_matrix, transformation_matrix.done());
+            this._drawSolidRect(renderable, ortho_matrix, transformation_matrix.done());
         }
     }
 
     // draw subroutines
-    _drawRect(renderable, pMatrix, tMatrix) {
+    _drawSolidRect(renderable, pMatrix, tMatrix) {
 
         // these are pre-formatted Float32Arrays
         let color = renderable.color,
@@ -192,8 +192,6 @@ class WebGLRenderer {
         gl.uniformMatrix4fv(pUniform, false, new Float32Array(mMath.flatten(pMatrix)));
         let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mMath.flatten(tMatrix)));
-        let resUniform = gl.getUniformLocation(shader, "uResolution");
-        gl.uniform3fv(resUniform, this._resolution_array);
 
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -202,8 +200,7 @@ class WebGLRenderer {
 }
 
 
-// TODO: To facilitate webgl rendering, we should store vertex data here without having to decode it. Factory pattern?
-class RenderableRect extends Component {
+class RenderableSolidRect extends Component {
     constructor(c_type, c_name, ...args) {
         super(c_type, c_name);
 
@@ -226,7 +223,34 @@ class RenderableRect extends Component {
     }
 }
 
-class RenderablePoly extends Component {
+class RenderableTexturedRect extends Component {
+    constructor(c_type, c_name, ...args) {
+        super(c_type, c_name);
+
+
+        //TODO: pull out texture data into a texture object
+
+        let [half_width = 0, half_height = 0, origin = vMath.vec3(),
+                tex_image, tex_width = 1, tex_height = 1, tex_bottom_left = vMath.vec2(), tex_top_right = vMath.vec2()] = args;
+
+        // tex_image should already be image data pre-loaded... check for tex_image.__loaded
+
+        this.__initialized = false;
+        this.gl_texture = null;
+
+        this.tex_data = tex_image;
+        if (tex_image)
+        this.tex_coords = new Float32Array([
+            tex_bottom_left.x / tex_width, tex_bottom_left.y / tex_height,
+            tex_top_right.x   / tex_width, tex_bottom_left.y / tex_height,
+            tex_top_right.x   / tex_width, tex_top_right.y   / tex_height,
+            tex_bottom_left.x / tex_width, tex_top_right.y   / tex_height,
+        ]);
+
+    }
+}
+
+class RenderableSolidPoly extends Component {
     constructor(c_type, c_name, ...args) {
         super(c_type, c_name);
 
@@ -239,4 +263,4 @@ class RenderablePoly extends Component {
     }
 }
 
-export {WebGLRenderer, RenderableRect, RenderablePoly};
+export {WebGLRenderer, RenderableSolidRect, RenderableSolidPoly};

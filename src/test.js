@@ -3,9 +3,9 @@
  */
 
 import Game from './game.js';
-import {RenderableRect} from './render.js';
+import {RenderableSolidRect} from './render.js';
 import {vMath, mMath, color} from './utils.js';
-import rect_shaders from "./shaders/rect.glsl.js";
+import rect_shaders from "./shaders/solidrect.glsl.js";
 
 let canvas                = document.querySelector("#screen");
 
@@ -27,8 +27,8 @@ window.g = new Game({
 });
 
 //let [half_width = 0, half_height = 0, origin = vMath.vec2(), color = color()] = args;
-window.rect = new RenderableRect("renderable", "rect1", 50, 50, color(1.0,1.0,1.0));
-window.rect2 = new RenderableRect("renderable", "rect2", 50, 50);
+window.rect = new RenderableSolidRect("renderable", "rect1", 50, 50, color(1.0,1.0,1.0));
+window.rect2 = new RenderableSolidRect("renderable", "rect2", 50, 50);
 window.pos  = vMath.vec3(100, 100, 0);
 window.pos2  = vMath.vec3(50, 50, 0);
 
