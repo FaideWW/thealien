@@ -1,6 +1,19 @@
 # Alien Engine
 
-Follow development [here](http://www.faide.net/)
+A game engine written in Javascript for HTML5 and WebGL.
+
+Follow development [here](http://www.faide.net/).
+
+
+
+###Usage
+Clone the repository.  Run
+    npm install
+    grunt
+    python3 -m http.server
+
+Navigate to `http://localhost:[PORT]/test.html` where port is the port used by the python server.
+
 
 
 
