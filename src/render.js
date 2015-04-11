@@ -117,6 +117,20 @@ class WebGLRenderer {
 
     }
 
+    _initTexture(image) {
+        let gl = this.ctx;
+
+        let texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+        return texture;
+    }
+
     get ctx() {
         return this._ctx;
     }
@@ -130,8 +144,6 @@ class WebGLRenderer {
     }
 
     draw(renderable, position = vMath.vec3(), transform = {}) {
-        let gl = this.ctx;
-
         // clear the screen
 
         // set up projection matrix and transformation matrix
@@ -151,8 +163,10 @@ class WebGLRenderer {
 
 
         // use subroutine to draw the shape
-        if (renderable.type === 'rect') {
+        if (renderable.type === 'solidrect') {
             this._drawSolidRect(renderable, ortho_matrix, transformation_matrix.done());
+        } else if (renderable.type === 'texturedrect') {
+            this._drawTexturedRect(renderable, ortho_matrix, transformation_matrix.done());
         }
     }
 
@@ -163,7 +177,7 @@ class WebGLRenderer {
         let color = renderable.color,
             verts = renderable.verts,
             gl    = this.ctx,
-            shader = this._shaders.rect;
+            shader = this._shaders.solid_rect;
 
 
         gl.useProgram(shader);
@@ -197,6 +211,61 @@ class WebGLRenderer {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     }
+
+    _drawTexturedRect(renderable, pMatrix, tMatrix) {
+        if (renderable.__initialized === false) {
+            if (renderable.tex_data.__loaded === true) {
+                renderable.gl_texture = this._initTexture(renderable.tex_data);
+                renderable.__initialied = true;
+
+            } else {
+                // renderable image is not loaded (yet..)
+                console.error(`Texture is not loaded yet.`);
+                return;
+            }
+        }
+
+        let gl = this.ctx,
+            shader = this._shaders.textured_rect;
+        let {gl_texture, tex_coords, verts} = renderable;
+
+        // activate the texture
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, gl_texture);
+
+        gl.useProgram(shader);
+
+
+        // TODO: does this attach to the renderable?
+        let vertex_position_attribute = gl.getAttribLocation(shader, "aVertexPosition");
+        gl.enableVertexAttribArray(vertex_position_attribute);
+        let texture_coordinate_attribute = gl.getAttribLocation(shader, "aTextureCoord");
+        gl.enableVertexAttribArray(texture_coordinate_attribute);
+
+        let texture_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texture_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, tex_coords, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 0, 0);
+
+        let vertices_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
+
+
+        // declare uniform variables
+        let pUniform = gl.getUniformLocation(shader, "uPMatrix");
+        gl.uniformMatrix4fv(pUniform, false, new Float32Array(mMath.flatten(pMatrix)));
+        let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
+        gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mMath.flatten(tMatrix)));
+
+        let texSampler = gl.getUniformLocation(shader, "uSampler");
+        gl.uniform1i(texSampler, 0);
+
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    }
 }
 
 
@@ -206,7 +275,7 @@ class RenderableSolidRect extends Component {
 
         let [half_width = 0, half_height = 0, fill = color(), origin = vMath.vec3()] = args;
 
-        this.type = "rect";
+        this.type = "solidrect";
         this.origin = origin;
 
         // build the vertex array (TRIANGLE_STRIP order)
@@ -233,18 +302,31 @@ class RenderableTexturedRect extends Component {
         let [half_width = 0, half_height = 0, origin = vMath.vec3(),
                 tex_image, tex_width = 1, tex_height = 1, tex_bottom_left = vMath.vec2(), tex_top_right = vMath.vec2()] = args;
 
+
+        this.type = "texturedrect";
+        this.origin = origin;
+
+
         // tex_image should already be image data pre-loaded... check for tex_image.__loaded
 
         this.__initialized = false;
         this.gl_texture = null;
 
         this.tex_data = tex_image;
-        if (tex_image)
+
+
         this.tex_coords = new Float32Array([
-            tex_bottom_left.x / tex_width, tex_bottom_left.y / tex_height,
-            tex_top_right.x   / tex_width, tex_bottom_left.y / tex_height,
-            tex_top_right.x   / tex_width, tex_top_right.y   / tex_height,
-            tex_bottom_left.x / tex_width, tex_top_right.y   / tex_height,
+            tex_top_right.x   / tex_width, tex_bottom_left.y / tex_height, // bottom right
+            tex_bottom_left.x / tex_width, tex_bottom_left.y / tex_height, // bottom left
+            tex_top_right.x   / tex_width, tex_top_right.y   / tex_height, // top right
+            tex_bottom_left.x / tex_width, tex_top_right.y   / tex_height  // top left
+        ]);
+
+        this.verts = new Float32Array([
+             half_width - origin.x,  half_height - origin.y, 0.0 - origin.z, // top right
+            -half_width - origin.x,  half_height - origin.y, 0.0 - origin.z, // top left
+             half_width - origin.x, -half_height - origin.y, 0.0 - origin.z, // bottom right
+            -half_width - origin.x, -half_height - origin.y, 0.0 - origin.z  // bottom left
         ]);
 
     }
@@ -263,4 +345,4 @@ class RenderableSolidPoly extends Component {
     }
 }
 
-export {WebGLRenderer, RenderableSolidRect, RenderableSolidPoly};
+export {WebGLRenderer, RenderableSolidRect, RenderableTexturedRect, RenderableSolidPoly};

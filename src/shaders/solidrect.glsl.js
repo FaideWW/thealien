@@ -2,7 +2,7 @@
  * Created by faide on 15-04-09.
  */
 export default {
-    vertex: `
+    vertex_source: `
 
           attribute vec3 aVertexPosition;
           attribute vec4 aVertexColor;
@@ -18,7 +18,7 @@ export default {
           }
 
     `,
-    fragment: `
+    fragment_source: `
 
           varying lowp vec4 vColor;
 

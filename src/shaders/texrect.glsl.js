@@ -2,34 +2,30 @@
  * Created by faide on 15-04-11.
  */
 export default {
-    vertex: `
+    vertex_source: `
 
           attribute vec3 aVertexPosition;
-          attribute vec4 aVertexColor;
+          attribute vec2 aTextureCoord;
 
           uniform mat4 uMVMatrix;
           uniform mat4 uPMatrix;
-          uniform vec3 uResolution;
 
-          varying lowp vec4 vColor;
+          varying highp vec2 vTextureCoord;
 
           void main(void) {
-            //vec3 zero_to_one = aVertexPosition / uResolution;
-            //vec3 zero_to_two = zero_to_one * 2.0;
-            //vec3 clipSpace   = zero_to_two - 1.0;
-
             gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-            vColor = aVertexColor;
+            vTextureCoord = aTextureCoord;
           }
 
     `,
-    fragment: `
+    fragment_source: `
 
-          varying lowp vec4 vColor;
+          varying highp vec2 vTextureCoord;
+
+          uniform sampler2D uSampler;
 
           void main(void) {
-            gl_FragColor = vColor;
-
+            gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
           }
 
   `
