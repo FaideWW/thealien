@@ -335,4 +335,6 @@ let color = function (string_or_r = 0, g = 0, b = 0, a = 1) {
     };
 };
 
+
+
 export {vec2, vec_ops as vMath, mtx_ops as mMath, color};

@@ -5,6 +5,7 @@
 
 import Entity from "./entity.js";
 import {WebGLRenderer} from "./render.js";
+import ResourceManager from "./resource.js";
 
 /**
  * class Game
@@ -27,10 +28,18 @@ export default class {
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
         let {canvasSelector: selector, shaders, resolution,
+                images,
                 render, audio, event} = options;
 
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
-        this.canvas          = getCanvasEl(selector);
+        this.canvas = getCanvasEl(selector);
+
+
+        this.__resources_loaded = () => {};
+
+        ResourceManager.loadResources(images)
+            .then((img) => this.__resources_loaded.call(this, img))
+        .catch((error) => console.error(error));
 
         if (!render) {
             this.render = render || new WebGLRenderer({
@@ -50,8 +59,10 @@ export default class {
         if (!event) {
             // create event system
         }
+    }
 
-
-
+    loaded(callback) {
+        // this is run when the ResourceManager has finished prefetching
+        this.__resources_loaded = callback;
     }
 }

@@ -22,47 +22,42 @@ window.g = new Game({
         width:  720,
         height: 480
     },
-    shaders: shaders
-});
+    shaders: shaders,
+    images: {
+        man: 'img/man.png'
+    }
+}).loaded(function (images) { // don't use arrow here, we need to preserve execution context
+        "use strict";
 
-// solid rects
+        // solid rects
+        let {man} = images;
 
-window.rect = new RenderableSolidRect("renderable", "rect1", 50, 50, color(1.0,1.0,1.0));
-window.rect2 = new RenderableSolidRect("renderable", "rect2", 50, 50);
-window.pos  = vMath.vec3(100, 100);
-window.pos2  = vMath.vec3(50, 50);
+        let rect = new RenderableSolidRect("renderable", "rect1", 50, 50, color(1.0,1.0,1.0));
+        let pos  = vMath.vec3(100, 100);
 
-// textured rect
-
-
-// for testing
-window.vMath = vMath;
-window.mMath = mMath;
+        let rect2 = new RenderableSolidRect("renderable", "rect2", 50, 50);
+        let pos2  = vMath.vec3(50, 50);
 
 
-window.run = () => {
-    "use strict";
+        let rect3 = new RenderableTexturedRect("renderable", "texrect", 32, 32, undefined, man,
+                                                man.width,        man.height,
+                                                vMath.vec2(0, 0), vMath.vec2(man.width, man.height));
+        let pos3 = vMath.vec3(250, 250);
 
-    window.rect3 = new RenderableTexturedRect("renderable", "texrect", 32, 32, undefined, image,
-        image.width,      image.height,
-        vMath.vec2(0, 0), vMath.vec2(image.width, image.height));
-    window.pos3 = vMath.vec3(250, 250);
+        // for testing
+        window.vMath = vMath;
+        window.mMath = mMath;
 
-    g.render.update();
-    g.render.draw(rect, pos);
-    g.render.draw(rect2, pos2, {
-        //rotate: Math.PI / 4,
-        //scale: vMath.vec2(0.5, 0.5)
+
+        window.run = () => {
+            "use strict";
+            this.render.update();
+            this.render.draw(rect, pos);
+            this.render.draw(rect2, pos2, {
+                //rotate: Math.PI / 4,
+                //scale: vMath.vec2(0.5, 0.5)
+            });
+
+            this.render.draw(rect3, pos3);
+        };
     });
-
-    g.render.draw(rect3, pos3);
-};
-
-let image = new Image();
-image.__loaded = false;
-image.onload = () => {
-    "use strict";
-    image.__loaded = true;
-    run();
-};
-image.src = 'img/man.png';

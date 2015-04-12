@@ -17,7 +17,7 @@ class WebGLRenderer {
 
         let {el: el,
                 shaders: shader_programs,
-                resolution: res
+                resolution: res,
                 } = opts;
 
         /* https://www.khronos.org/webgl/wiki/HandlingHighDPI */
@@ -33,7 +33,6 @@ class WebGLRenderer {
         this._resolution = vMath.vec3(el.width, el.height, 1);
         // used to send the resolution as a uniform variable to the vertex shader
         this._resolution_array = new Float32Array([el.width, el.height, 1.0]);
-
 
 
         try {
@@ -214,15 +213,8 @@ class WebGLRenderer {
 
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.__initialized === false) {
-            if (renderable.tex_data.__loaded === true) {
-                renderable.gl_texture = this._initTexture(renderable.tex_data);
-                renderable.__initialied = true;
-
-            } else {
-                // renderable image is not loaded (yet..)
-                console.error(`Texture is not loaded yet.`);
-                return;
-            }
+            renderable.gl_texture = this._initTexture(renderable.tex_data);
+            renderable.__initialied = true;
         }
 
         let gl = this.ctx,
