@@ -26,7 +26,7 @@ window.g = new Game({
     images: {
         man: 'img/man.png'
     }
-}).loaded(function (images) { // don't use arrow here, we need to preserve execution context
+}).ready(function (images) { // don't use arrow here, we need to preserve execution context
         "use strict";
 
         // solid rects

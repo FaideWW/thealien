@@ -335,6 +335,19 @@ let color = function (string_or_r = 0, g = 0, b = 0, a = 1) {
     };
 };
 
+let rAF = (window.requestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame||
+        window.oRequestAnimationFrame ||
+        ((cb) => window.setTimeout(cb, 1000 / 60))
+);
+
+let cRAF = (window.cancelRequestAnimationFrame ||
+        window.mozCancelRequestAnimationFrame ||
+        window.webkitCancelRequestAnimationFrame ||
+        window.oCancelRequestAnimationFrame ||
+        ((id) => window.clearTimeout(id))
+);
 
 
-export {vec2, vec_ops as vMath, mtx_ops as mMath, color};
+export {vec2, vec_ops as vMath, mtx_ops as mMath, color, rAF, cRAF};

@@ -6,6 +6,8 @@
 import Entity from "./entity.js";
 import {WebGLRenderer} from "./render.js";
 import ResourceManager from "./resource.js";
+import Interface from "./interface.js";
+import {rAF, cRAF} from "./utils.js";
 
 /**
  * class Game
@@ -41,6 +43,8 @@ export default class {
             .then((img) => this.__resources_loaded.call(this, img))
         .catch((error) => console.error(error));
 
+        this.__input = new Interface(window);
+
         if (!render) {
             this.render = render || new WebGLRenderer({
                 el: this.canvas,
@@ -61,8 +65,27 @@ export default class {
         }
     }
 
-    loaded(callback) {
+    ready(callback) {
         // this is run when the ResourceManager has finished prefetching
         this.__resources_loaded = callback;
+        return this;
     }
+
+    /*
+     * TODO: refactor this to match the ready syntax above, so game.step(...) can be called from the main script
+     *     note: this means the actual step code will need to be pulled out and called from somewhere else
+     */
+    step(timestamp) {
+
+        // update systems
+        this.__input.process();
+
+
+        this.__raf_id = rAF(this.step.bind(this));
+    }
+
+    stop() {
+        cRAF(this.__raf_id);
+    }
+
 }
