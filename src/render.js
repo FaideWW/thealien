@@ -25,12 +25,12 @@ class WebGLRenderer {
         el.style.width  = `${res.width}px`;
         el.style.height = `${res.height}px`;
 
-        let device_pixel_ratio = window.devicePixelRatio || 1;
+        let device_pixel_ratio = window.devicePixelRatio || 2;
 
         el.width  = res.width  * device_pixel_ratio;
         el.height = res.height * device_pixel_ratio;
 
-        this._resolution = vMath.vec3(el.width, el.height, 1);
+        this._resolution = vMath.vec3(res.width, res.height, 1);
         // used to send the resolution as a uniform variable to the vertex shader
         this._resolution_array = new Float32Array([el.width, el.height, 1.0]);
 
@@ -148,7 +148,7 @@ class WebGLRenderer {
         // set up projection matrix and transformation matrix
 
         //let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);
-        let ortho_matrix = mMath.orthographic(0, this._resolution.x / 2, 0, this._resolution.y / 2, 0, 10);
+        let ortho_matrix = mMath.orthographic(0, this._resolution.x, 0, this._resolution.y, 0, 10);
 
         let transformation_matrix = mMath.compose()
             .translate(position);
