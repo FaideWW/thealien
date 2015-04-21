@@ -63,5 +63,7 @@ window.g = new Game({
         entities.forEach((e) => {
             this.render.draw(e.rect, e.pos);
         });
+
+        entities[0].pos = this.__input.__mouse_state.pos;
     })
     .run();

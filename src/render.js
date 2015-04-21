@@ -122,6 +122,9 @@ class WebGLRenderer {
         let texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+        // flip the texture's y coordinate (see aside @line 156)
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
@@ -148,7 +151,15 @@ class WebGLRenderer {
         // set up projection matrix and transformation matrix
 
         //let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);
-        let ortho_matrix = mMath.orthographic(0, this._resolution.x, 0, this._resolution.y, 0, 10);
+
+        /*
+        * aside:
+        *   webGL subscribes to the view that the y axis runs bottom-to-top, meaning that y increases as we move up.
+        *   browsers (and thus events and mouse-movement) view the opposite; the y-axis runs top-to-bottom.
+        *   we compensate for this here (and above for texture mapping) by flipping the frustum in our
+         *  camera projection to take top-down y coordinates and draw them bottom-up.
+        */
+        let ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10);
 
         let transformation_matrix = mMath.compose()
             .translate(position);

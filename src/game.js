@@ -36,13 +36,16 @@ export default class {
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
         this.canvas = getCanvasEl(selector);
 
-
+        this.__loaded = false;
         this.__resources_loaded = () => {};
         this.__user_defined_step = () => {};
 
         ResourceManager.loadResources(images)
-            .then((img) => this.__resources_loaded.call(this, img))
-        .catch((error) => console.error(error));
+            .then((img) => {
+                this.__resources_loaded.call(this, img);
+                this.__loaded = true;
+            })
+            .catch((error) => console.error(error));
 
         this.__input = new Interface(window);
 
@@ -76,8 +79,12 @@ export default class {
     }
 
     __tick(timestamp) {
-        this.__updateSystems(timestamp);
-        this.__user_defined_step(timestamp);
+
+        if (this.__loaded) {
+            this.__updateSystems(timestamp);
+            this.__user_defined_step(timestamp);
+        }
+
         this.__raf_id = rAF(this.__tick.bind(this));
     }
 
