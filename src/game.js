@@ -38,6 +38,7 @@ export default class {
 
 
         this.__resources_loaded = () => {};
+        this.__user_defined_step = () => {};
 
         ResourceManager.loadResources(images)
             .then((img) => this.__resources_loaded.call(this, img))
@@ -65,9 +66,24 @@ export default class {
         }
     }
 
+    __updateSystems(timestamp) {
+        // update systems
+
+        this.render.update();
+
+        this.__input.process();
+
+    }
+
+    __tick(timestamp) {
+        this.__updateSystems(timestamp);
+        this.__user_defined_step(timestamp);
+        this.__raf_id = rAF(this.__tick.bind(this));
+    }
+
     ready(callback) {
         // this is run when the ResourceManager has finished prefetching
-        this.__resources_loaded = callback;
+        this.__resources_loaded = callback.bind(this);
         return this;
     }
 
@@ -75,17 +91,19 @@ export default class {
      * TODO: refactor this to match the ready syntax above, so game.step(...) can be called from the main script
      *     note: this means the actual step code will need to be pulled out and called from somewhere else
      */
-    step(timestamp) {
+    step(callback) {
+        this.__user_defined_step = callback.bind(this);
+        return this;
+    }
 
-        // update systems
-        this.__input.process();
-
-
-        this.__raf_id = rAF(this.step.bind(this));
+    run() {
+        this.__tick(0);
+        return this;
     }
 
     stop() {
         cRAF(this.__raf_id);
+        return this;
     }
 
 }
