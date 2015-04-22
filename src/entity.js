@@ -2,7 +2,7 @@
  * Created by faide on 2015-04-01.
  */
 
-export default class {
+export default class Entity {
     constructor(id          = Date.now().toString(),
                 components  = []                     ) {
         "use strict";
@@ -31,6 +31,11 @@ export default class {
     get key() {
         "use strict";
         return this._key;
+    }
+
+    matchesLock(lock) {
+        "use strict";
+        return ((this.key & lock) === lock);
     }
 
     addComponent(component) {
