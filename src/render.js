@@ -3,7 +3,7 @@
  */
 "use strict";
 
-import {Component} from "./component.js";
+import {Component, Registry} from "./component.js";
 import {vMath, mMath, color} from "./utils.js";
 let  {floor} = Math;
 
@@ -14,6 +14,8 @@ class WebGLRenderer {
         if (!(opts.el && opts.resolution)) {
             return;
         }
+
+        this.__lock = 0;
 
         let {el: el,
                 shaders: shader_programs,
@@ -66,10 +68,12 @@ class WebGLRenderer {
             }
         }
 
-
-
         this._ctx.viewport(0, 0, this._resolution.x, this._resolution.y);
 
+    }
+
+    get lock() {
+        return this.__lock;
     }
 
     _initShader(shader_type, shader_source) {
@@ -138,7 +142,21 @@ class WebGLRenderer {
     }
 
     update(scene, dt) {
-        this.clear();
+        let renderable = Registry.flags.renderable;
+        let position   = Registry.flags.position;
+        if (!this.__lock && renderable && position) {
+            this.__lock = renderable | position;
+        }
+
+
+            this.clear();
+        scene.each((e) => {
+            let e_pos = e.getComponent(position)[0];
+            let e_ren = e.getComponent(renderable);
+
+            e_ren.forEach((r) => this.draw(r, e_pos));
+
+        }, this.lock);
     }
 
     clear() {
@@ -146,8 +164,6 @@ class WebGLRenderer {
     }
 
     draw(renderable, position = vMath.vec3(), transform = {}) {
-        // clear the screen
-
         // set up projection matrix and transformation matrix
 
         //let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);

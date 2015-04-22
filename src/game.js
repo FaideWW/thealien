@@ -40,6 +40,10 @@ export default class {
         this.__resources_loaded = () => {};
         this.__user_defined_step = () => {};
 
+        this.__scenes = {};
+        this.activeScene = null;
+        this.__last_time = 0;
+
         ResourceManager.loadResources(images)
             .then((img) => {
                 this.__resources_loaded.call(this, img);
@@ -69,22 +73,37 @@ export default class {
         }
     }
 
-    __updateSystems(timestamp) {
-        // update systems
+    get scenes() {
+        return this.__scenes;
+    }
 
-        this.render.update();
+    // update systems
+    __updateSystems(dt) {
 
         this.__input.process();
+
+
+        if (this.activeScene) {
+            this.render.update(this.activeScene, dt);
+        }
+
 
     }
 
     __tick(timestamp) {
 
-        if (this.__loaded) {
-            this.__updateSystems(timestamp);
-            this.__user_defined_step(timestamp);
+        if (this.__last_time === 0) {
+            this.__last_time = timestamp;
         }
 
+        let dt = timestamp - this.__last_time;
+
+        if (this.__loaded) {
+            this.__updateSystems(dt);
+            this.__user_defined_step(dt);
+        }
+
+        this.__last_time = timestamp;
         this.__raf_id = rAF(this.__tick.bind(this));
     }
 
@@ -113,4 +132,26 @@ export default class {
         return this;
     }
 
+
+    // ----- scenes
+
+    addScene(scene) {
+        this.__scenes[scene.id] = scene;
+    }
+
+    removeScene(scene_or_id) {
+        if (this.__scenes[scene_or_id]) {
+            delete this.__scenes[scene_or_id];
+        } else if (this.__scenes[scene_or_id.id]) {
+            delete this.__scenes[scene_or_id.id];
+        }
+    }
+
+    loadScene(scene_or_id) {
+        if (this.__scenes[scene_or_id]) {
+            this.activeScene = this.__scenes[scene_or_id];
+        } else if (this.__scenes[scene_or_id.id]) {
+            this.activeScene = this.__scenes[scene_or_id.id];
+        }
+    }
 }

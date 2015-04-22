@@ -3,13 +3,13 @@
  */
 
 let Registry = {
-    __next_flag: 0,
+    __next_flag: 1,
     __flags: {},
     getFlag(type) {
         "use strict";
         if (!this.__flags[type]) {
             this.__flags[type] = this.__next_flag;
-            this.__next_flag = this.__next_flag << 1;
+            this.__next_flag = (this.__next_flag << 1);
         }
         return this.__flags[type];
     },

@@ -3,7 +3,7 @@
  */
 
 export default class Entity {
-    constructor(id          = Date.now().toString(),
+    constructor(id          = `entity${Date.now().toString()}`,
                 components  = []                     ) {
         "use strict";
 
@@ -42,18 +42,13 @@ export default class Entity {
         "use strict";
         let {flag, c_id} = component;
         if (!this._components[flag]) {
-            this._components[flag] = {};
+            this._components[flag] = [];
         }
-        this._components[flag][c_id] = component;
+        this._components[flag].push(component);
         this._key = (this._key | flag);
     }
 
-    getComponent(flag, c_id) {
-        "use strict";
-        return this._components[flag][c_id];
-    }
-
-    getComponents(flag) {
+    getComponent(flag) {
         "use strict";
         return this._components[flag];
     }
