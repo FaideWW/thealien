@@ -2,6 +2,7 @@
  * Created by faide on 2015-04-01.
  */
 
+    // TODO: allow two-way flag registration; either through the component OR through the system
 let Registry = {
     __next_flag: 1,
     __flags: {},

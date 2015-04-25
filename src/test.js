@@ -11,6 +11,7 @@ import solid_rect_shaders from "./shaders/solidrect.glsl.js";
 import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
+import {PhysicsSystem, Movable} from './physics.js';
 
 let canvas = document.querySelector("#screen");
 
@@ -31,6 +32,12 @@ window.g = new Game({
     shaders: shaders,
     images: {
         man: 'img/man.png'
+    },
+    phases: ['physics'],
+    systems: {
+        physics: [
+            new PhysicsSystem("physics", ["position", "movable"])
+        ]
     }
 })
     .ready(function (images) { // don't use arrow here, we need to preserve execution context
@@ -53,7 +60,8 @@ window.g = new Game({
             new RenderableTexturedRect("texrect", "renderable", 50, 50, undefined, man,
                 man.width,        man.height,
                 vMath.vec2(0, 0), vMath.vec2(man.width, man.height)),
-            new Position("pos3", "position", vMath.vec3(250, 250))
+            new Position("pos3", "position", vMath.vec3(250, 250)),
+            new Movable("mov1", "movable", 0, 0)
         ]));
 
         s = new Scene("scene1", entities);

@@ -31,7 +31,8 @@ export default class {
 
         let {canvasSelector: selector, shaders, resolution,
                 images,
-                render, audio, event} = options;
+                render, audio, event,
+                phases, systems = {}} = options;
 
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
         this.canvas = getCanvasEl(selector);
@@ -64,6 +65,22 @@ export default class {
             }
         }
 
+
+        this.__phaseorder = phases || [];
+        this.__phases = {};
+        this.__phaseorder.forEach((phase) => {
+            if (!systems[phase]) {
+                systems[phase] = [];
+            }
+
+            systems[phase].forEach((system) => system.init());
+            this.__phases[phase] = systems[phase];
+        });
+
+        /*
+
+        The following is no longer relevant; keeping it here for posterity
+
         if (!audio) {
             // create audio system
         }
@@ -71,6 +88,7 @@ export default class {
         if (!event) {
             // create event system
         }
+        */
     }
 
     get scenes() {
@@ -84,7 +102,15 @@ export default class {
 
 
         if (this.activeScene) {
-            this.render.update(this.activeScene, dt);
+            let scene = this.activeScene;
+
+            this.__phaseorder.forEach((phase_id) => {
+                let systems = this.__phases[phase_id];
+                systems.forEach((system) => system.update(scene, dt));
+            });
+
+            //draw
+            this.render.update(scene, dt);
         }
 
 
@@ -153,5 +179,20 @@ export default class {
         } else if (this.__scenes[scene_or_id.id]) {
             this.activeScene = this.__scenes[scene_or_id.id];
         }
+    }
+
+    addPhase(phase_id, index) {
+        this.__phaseorder.splice(index, 0, phase_id);
+        this.__phases[phase_id] = [];
+    }
+
+    addSystem(system, phase_id) {
+        if (!this.__phases[phase_id]) {
+
+            // don't auto-add phases; these need to be explicit
+            return;
+        }
+
+        this.__phases[phase_id].push(system);
     }
 }

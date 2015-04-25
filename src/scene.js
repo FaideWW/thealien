@@ -3,7 +3,7 @@
  */
 
 export default class Scene {
-    constructor(id          = `scene${Date.now().toString()}`,
+    constructor(id          = `scene_${Date.now().toString()}`,
                 entities = [], map = null) {
         "use strict";
 
@@ -56,7 +56,11 @@ export default class Scene {
         let e = entities.next();
 
         while (!e.done) {
-            cb(e.value);
+            if (thisArg) {
+                cb.call(thisArg, e.value);
+            } else {
+                cb(e.value);
+            }
             e = entities.next();
         }
     }
