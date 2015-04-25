@@ -12,7 +12,13 @@ export default class GameSystem {
         this._name = s_id;
         this._id   = Symbol(this._name);
         this._lock = 0;
-        this.__flags = components;
+        this.__flags = {};
+
+        components.forEach((component) => {
+            let flag = Registry.getFlag(component);
+            this._lock |= flag;
+            this.__flags[component] = flag;
+        });
 
         this.__state = {};
     }
@@ -30,11 +36,5 @@ export default class GameSystem {
     get state() {
         "use strict";
         return this.__state;
-    }
-
-    init() {
-        "use strict";
-        this.__flags.forEach((component) => this._lock |= Registry.getFlag(component));
-        console.log(`system lock: ${this._lock}`);
     }
 }

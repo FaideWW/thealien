@@ -40,11 +40,8 @@ export default class Entity {
 
     addComponent(component) {
         "use strict";
-        let {flag, c_id} = component;
-        if (!this._components[flag]) {
-            this._components[flag] = [];
-        }
-        this._components[flag].push(component);
+        let {flag} = component;
+        this._components[flag] = component;
         this._key = (this._key | flag);
     }
 
@@ -57,14 +54,9 @@ export default class Entity {
         "use strict";
         let {flag, c_id} = component;
 
+
         if (this._components[flag]) {
-            if (c_id && this._components[flag][c_id]) {
-
-            } else {
-
-                this._components[flag].length = 0;
-            }
-
+            delete this._components[flag];
             this._key = (this._key & ~flag);
         }
     }

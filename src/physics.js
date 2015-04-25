@@ -15,11 +15,23 @@ class PhysicsSystem extends GameSystem{
     update(scene, dt) {
         "use strict";
 
-        console.group();
+        let interpolation = dt / 1000;
+
         scene.each((e) => {
-            console.log(e);
+            let movable = e.getComponent(this.__flags['movable']);
+            let position = e.getComponent(this.__flags['position']);
+
+            // non-writable values
+            let {x: vx, y: vy} = movable.velocity;
+            let {x: ax, y: ay} = movable.acceleration;
+
+            position.x += vx * interpolation;
+            position.y += vy * interpolation;
+
+
         }, this.lock);
-        console.groupEnd();
+
+
     }
 }
 
@@ -28,7 +40,7 @@ class Movable extends Component {
         "use strict";
         super(c_id, c_name);
 
-        let {velocity, acceleration} = args;
+        let [velocity = vMath.vec2(), acceleration = vMath.vec2()] = args;
 
         this.velocity = velocity;
         this.acceleration = acceleration;

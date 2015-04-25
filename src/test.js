@@ -61,7 +61,7 @@ window.g = new Game({
                 man.width,        man.height,
                 vMath.vec2(0, 0), vMath.vec2(man.width, man.height)),
             new Position("pos3", "position", vMath.vec3(250, 250)),
-            new Movable("mov1", "movable", 0, 0)
+            new Movable("mov1", "movable", vMath.vec2(20, 0))
         ]));
 
         s = new Scene("scene1", entities);
@@ -78,8 +78,8 @@ window.g = new Game({
 
         //let position   = Registry.getFlag("position");
         //
-        //let e_pos = entities[2].getComponent(position)[0];
-        //let {x, y} = this.__input.__mouse_state.pos;
+        //let e_pos = entities[2].getComponent(position);
+        //let {x, y} = this.input.mouse.pos;
         //e_pos.x = x;
         //e_pos.y = y;
     })

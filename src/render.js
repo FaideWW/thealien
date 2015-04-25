@@ -151,10 +151,10 @@ class WebGLRenderer {
 
             this.clear();
         scene.each((e) => {
-            let e_pos = e.getComponent(position)[0];
+            let e_pos = e.getComponent(position);
             let e_ren = e.getComponent(renderable);
 
-            e_ren.forEach((r) => this.draw(r, e_pos));
+            this.draw(e_ren, e_pos);
 
         }, this.lock);
     }

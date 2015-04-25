@@ -68,14 +68,7 @@ export default class {
 
         this.__phaseorder = phases || [];
         this.__phases = {};
-        this.__phaseorder.forEach((phase) => {
-            if (!systems[phase]) {
-                systems[phase] = [];
-            }
-
-            systems[phase].forEach((system) => system.init());
-            this.__phases[phase] = systems[phase];
-        });
+        this.__phaseorder.forEach((phase) => this.__phases[phase] = systems[phase] || []);
 
         /*
 
@@ -95,11 +88,14 @@ export default class {
         return this.__scenes;
     }
 
+    get input() {
+        return this.__input;
+    }
+
     // update systems
     __updateSystems(dt) {
 
         this.__input.process();
-
 
         if (this.activeScene) {
             let scene = this.activeScene;

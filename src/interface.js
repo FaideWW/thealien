@@ -21,6 +21,16 @@ export default class Interface {
         events.forEach(this._bindEvent.bind(this));
     }
 
+    get mouse() {
+        "use strict";
+        return this.__mouse_state;
+    }
+
+    get key() {
+        "use strict";
+        return this.__key_state;
+    }
+
     _listener(event) {
         "use strict";
         this.__event_queue.push(event);
