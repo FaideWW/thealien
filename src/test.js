@@ -73,14 +73,29 @@ window.g = new Game({
         window.mMath = mMath;
 
     })
-    .step(function (dt) {
+    .step(function (dt, persist) {
         "use strict";
 
-        //let position   = Registry.getFlag("position");
-        //
-        //let e_pos = entities[2].getComponent(position);
-        //let {x, y} = this.input.mouse.pos;
-        //e_pos.x = x;
-        //e_pos.y = y;
+        let position   = Registry.getFlag("position");
+
+        let e_pos = entities[2].getComponent(position);
+        let {x, y} = e_pos;
+
+        persist.time   = persist.time   || 0;
+        persist.radius = persist.radius || 200;
+        persist.center = persist.center || { x: e_pos.x, y: e_pos.y};
+        persist.period = persist.period || 5000;
+
+
+        // circle routine
+
+        persist.time += dt;
+
+        let interval = (persist.time / persist.period) * Math.PI * 2;
+
+        e_pos.x = persist.center.x + (persist.radius * Math.cos(interval));
+        e_pos.y = persist.center.y + (persist.radius * Math.sin(interval));
+
+        return persist;
     })
     .run();

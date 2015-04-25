@@ -41,6 +41,8 @@ export default class {
         this.__resources_loaded = () => {};
         this.__user_defined_step = () => {};
 
+        this.__user_persist = {};
+
         this.__scenes = {};
         this.activeScene = null;
         this.__last_time = 0;
@@ -122,7 +124,7 @@ export default class {
 
         if (this.__loaded) {
             this.__updateSystems(dt);
-            this.__user_defined_step(dt);
+            this.__user_persist = this.__user_defined_step(dt, this.__user_persist);
         }
 
         this.__last_time = timestamp;
