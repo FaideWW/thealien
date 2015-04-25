@@ -12,6 +12,7 @@ import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
+import {CollisionSystem, AABBCollidable} from './collision.js';
 
 let canvas = document.querySelector("#screen");
 
@@ -33,10 +34,11 @@ window.g = new Game({
     images: {
         man: 'img/man.png'
     },
-    phases: ['physics'],
+    phases: ['collision', 'physics'],
     systems: {
         physics: [
-            new PhysicsSystem("physics", ["position", "movable"])
+            new PhysicsSystem("physics", ["position", "movable"]),
+            new CollisionSystem("collision", ["position", "collidable"])
         ]
     }
 })
@@ -48,12 +50,14 @@ window.g = new Game({
 
         entities.push(new Entity("whiterect", [
             new RenderableSolidRect("rect1", "renderable", 50, 50, color(1.0,1.0,1.0)),
-            new Position("pos1", "position", vMath.vec3(100, 100))
+            new Position("pos1", "position", vMath.vec3(150, 150)),
+            new AABBCollidable("col1", "collidable", 50, 50)
         ]));
 
         entities.push(new Entity("blackrect", [
             new RenderableSolidRect("rect2", "renderable", 50, 50),
-            new Position("pos2", "position", vMath.vec3(50, 50))
+            new Position("pos2", "position", vMath.vec3(50, 50)),
+            new AABBCollidable("col2", "collidable", 50, 50)
         ]));
 
         entities.push(new Entity("man", [
@@ -77,13 +81,12 @@ window.g = new Game({
         "use strict";
 
         let position   = Registry.getFlag("position");
+        let movable = Registry.getFlag("movable");
 
-        let e_pos = entities[2].getComponent(position);
-        let {x, y} = e_pos;
+        let e_vel = entities[2].getComponent(movable).velocity;
 
         persist.time   = persist.time   || 0;
-        persist.radius = persist.radius || 200;
-        persist.center = persist.center || { x: e_pos.x, y: e_pos.y};
+        persist.radius = persist.radius || 100;
         persist.period = persist.period || 5000;
 
 
@@ -93,8 +96,15 @@ window.g = new Game({
 
         let interval = (persist.time / persist.period) * Math.PI * 2;
 
-        e_pos.x = persist.center.x + (persist.radius * Math.cos(interval));
-        e_pos.y = persist.center.y + (persist.radius * Math.sin(interval));
+        e_vel.x = (persist.radius * Math.cos(interval));
+        e_vel.y = (persist.radius * Math.sin(interval));
+
+
+        let mouse = this.input.mouse.pos;
+
+        let rect_pos = entities[1].getComponent(position);
+        rect_pos.x = mouse.x;
+        rect_pos.y = mouse.y;
 
         return persist;
     })

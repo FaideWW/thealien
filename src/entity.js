@@ -13,7 +13,7 @@ export default class Entity {
 
 
         this._key = 0;
-        this._components = [];
+        this._components = {};
 
         components.forEach((c) => this.addComponent(c));
     }
