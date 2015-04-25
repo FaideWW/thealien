@@ -3,7 +3,7 @@
  */
 
 export default class Entity {
-    constructor(id          = `entity${Date.now().toString()}`,
+    constructor(id          = `entity_${Date.now().toString()}`,
                 components  = []                     ) {
         "use strict";
 

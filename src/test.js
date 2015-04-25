@@ -40,20 +40,20 @@ window.g = new Game({
         let {man} = images;
 
         entities.push(new Entity("whiterect", [
-            new RenderableSolidRect("renderable", "rect1", 50, 50, color(1.0,1.0,1.0)),
-            new Position("position", "pos1", vMath.vec3(100, 100))
+            new RenderableSolidRect("rect1", "renderable", 50, 50, color(1.0,1.0,1.0)),
+            new Position("pos1", "position", vMath.vec3(100, 100))
         ]));
 
         entities.push(new Entity("blackrect", [
-            new RenderableSolidRect("renderable", "rect2", 50, 50),
-            new Position("position", "pos2", vMath.vec3(50, 50))
+            new RenderableSolidRect("rect2", "renderable", 50, 50),
+            new Position("pos2", "position", vMath.vec3(50, 50))
         ]));
 
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("renderable", "texrect", 32, 32, undefined, man,
+            new RenderableTexturedRect("texrect", "renderable", 50, 50, undefined, man,
                 man.width,        man.height,
                 vMath.vec2(0, 0), vMath.vec2(man.width, man.height)),
-            new Position("position", "pos3", vMath.vec3(250, 250))
+            new Position("pos3", "position", vMath.vec3(250, 250))
         ]));
 
         s = new Scene("scene1", entities);
@@ -68,11 +68,11 @@ window.g = new Game({
     .step(function (dt) {
         "use strict";
 
-        let position   = Registry.getFlag("position");
-
-        let e_pos = entities[2].getComponent(position)[0];
-        let {x, y} = this.__input.__mouse_state.pos;
-        e_pos.x = x;
-        e_pos.y = y;
+        //let position   = Registry.getFlag("position");
+        //
+        //let e_pos = entities[2].getComponent(position)[0];
+        //let {x, y} = this.__input.__mouse_state.pos;
+        //e_pos.x = x;
+        //e_pos.y = y;
     })
     .run();

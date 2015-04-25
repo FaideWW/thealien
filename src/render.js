@@ -239,9 +239,9 @@ class WebGLRenderer {
     }
 
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
-        if (renderable.__initialized === false) {
+        if (renderable.initialized === false) {
             renderable.gl_texture = this._initTexture(renderable.tex_data);
-            renderable.__initialied = true;
+            renderable.initialied = true;
         }
 
         let gl = this.ctx,
@@ -328,7 +328,7 @@ class RenderableTexturedRect extends Component {
 
         // tex_image should already be image data pre-loaded... check for tex_image.__loaded
 
-        this.__initialized = false;
+        this.initialized = false;
         this.gl_texture = null;
 
         this.tex_data = tex_image;

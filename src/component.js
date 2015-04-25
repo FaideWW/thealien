@@ -20,10 +20,12 @@ let Registry = {
 };
 
 class Component {
-    constructor(c_type, c_name) {
+    constructor(c_id = `component_${Date.now().toString()}`,
+                c_type = null) {
         "use strict";
+
         this._flag = Registry.getFlag(c_type);
-        this._name = c_name;
+        this._name = c_id;
         this._id = Symbol(this._name);
     }
 
