@@ -27,7 +27,8 @@ class WebGLRenderer {
         el.style.width  = `${res.width}px`;
         el.style.height = `${res.height}px`;
 
-        let device_pixel_ratio = window.devicePixelRatio || 2;
+        let device_pixel_ratio = window.devicePixelRatio || 1;
+        console.log(device_pixel_ratio);
 
         el.width  = res.width  * device_pixel_ratio;
         el.height = res.height * device_pixel_ratio;
@@ -68,7 +69,7 @@ class WebGLRenderer {
             }
         }
 
-        this._ctx.viewport(0, 0, this._resolution.x, this._resolution.y);
+        this._ctx.viewport(0, 0, this._resolution.x * device_pixel_ratio, this._resolution.y * device_pixel_ratio);
 
     }
 

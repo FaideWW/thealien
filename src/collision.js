@@ -19,10 +19,13 @@ class CollisionSystem extends GameSystem {
         let check_collision_table = (e1, e2) => {
             return collision_table.some((pair) => {
                 return (pair[0] === e1.id && pair[1] === e2.id ||
-                    pair[1] === e1.id && pair[0] === e2.id);
+                        pair[1] === e1.id && pair[0] === e2.id);
 
             });
         };
+
+        let fcollidable = this.__flags['collidable'];
+        let fposition    = this.__flags['position'];
 
         scene.each((entity1) => {
             scene.each((entity2) => {
@@ -35,13 +38,16 @@ class CollisionSystem extends GameSystem {
                     collision_table.push([entity1.id, entity2.id]);
 
                     // do this
-                    let collidable1 = entity1.getComponent(this.__flags['collidable']);
-                    let collidable2 = entity2.getComponent(this.__flags['collidable']);
-                    let position1 = entity1.getComponent(this.__flags['position']);
-                    let position2 = entity2.getComponent(this.__flags['position']);
+                    let collidable1 = entity1.getComponent(fcollidable);
+                    let collidable2 = entity2.getComponent(fcollidable);
+                    let position1 = entity1.getComponent(fposition);
+                    let position2 = entity2.getComponent(fposition);
+
+                    collidable1.__collided = false;
+                    collidable2.__collided = false;
 
                     if (collidable1.type === 'AABB' && collidable2.type === 'AABB') {
-                        if (this.__AABBTest(collidable1, collidable2, position1, position2)) {
+                        if (CollisionSystem.__AABBTest(collidable1, collidable2, position1, position2)) {
                             collidable1.__collided = true;
                             collidable2.__collided = true;
 
@@ -58,7 +64,7 @@ class CollisionSystem extends GameSystem {
 
     // TESTS
 
-    __AABBTest(c1, c2, p1, p2) {
+    static __AABBTest(c1, c2, p1, p2) {
         "use strict";
         let bounds1 = {
             minx: p1.x - c1.hw,

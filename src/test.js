@@ -82,6 +82,8 @@ window.g = new Game({
 
         let position   = Registry.getFlag("position");
         let movable = Registry.getFlag("movable");
+        let renderable = Registry.getFlag("renderable");
+        let collidable = Registry.getFlag("collidable");
 
         let e_vel = entities[2].getComponent(movable).velocity;
 
@@ -105,6 +107,19 @@ window.g = new Game({
         let rect_pos = entities[1].getComponent(position);
         rect_pos.x = mouse.x;
         rect_pos.y = mouse.y;
+
+        let rect_collidable = entities[1].getComponent(collidable);
+        let rect_renderable = entities[1].getComponent(renderable);
+
+        let fill;
+        if (rect_collidable.__collided) {
+            fill = color(1.0, 0.0, 0.0);
+        } else {
+            fill = color(0.0, 0.0, 0.0);
+        }
+
+        // TODO: there has to be a better way to handle colors
+        rect_renderable.color = new Float32Array([...fill.arr, ...fill.arr, ...fill.arr, ...fill.arr])
 
         return persist;
     })
