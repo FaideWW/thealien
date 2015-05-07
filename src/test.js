@@ -4,7 +4,7 @@
 
 import Game from './game.js';
 import {Registry} from './component.js';
-import {RenderableSolidRect, RenderableTexturedRect} from './render.js';
+import {RenderableSolidRect, RenderableTexturedRect} from './renderable.js';
 import Position from './position.js';
 import {vMath, mMath, color} from './utils.js';
 import solid_rect_shaders from "./shaders/solidrect.glsl.js";
@@ -13,6 +13,7 @@ import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
 import {CollisionSystem, AABBCollidable} from './collision.js';
+import Map from './map.js';
 
 let canvas = document.querySelector("#screen");
 
@@ -32,7 +33,8 @@ window.g = new Game({
     },
     shaders: shaders,
     images: {
-        man: 'img/man.png'
+        man: 'img/man.png',
+        map: 'img/map.png'
     },
     phases: ['collision', 'physics'],
     systems: {
@@ -46,33 +48,55 @@ window.g = new Game({
         "use strict";
 
         // solid rects
-        let {man} = images;
+        let {man, map} = images;
+        let {vec2, vec3} = vMath;
 
         entities.push(new Entity("whiterect", [
-            new RenderableSolidRect("rect1", "renderable", 50, 50, color(1.0,1.0,1.0)),
-            new Position("pos1", "position", vMath.vec3(150, 150)),
+            new RenderableSolidRect("rect1", 50, 50, color(1.0,1.0,1.0)),
+            new Position("pos1", "position", vec3(150, 150)),
             new AABBCollidable("col1", "collidable", 50, 50)
         ]));
 
         entities.push(new Entity("blackrect", [
-            new RenderableSolidRect("rect2", "renderable", 50, 50),
-            new Position("pos2", "position", vMath.vec3(50, 50)),
+            new RenderableSolidRect("rect2", 50, 50),
+            new Position("pos2", "position",vec3(50, 50)),
             new AABBCollidable("col2", "collidable", 50, 50)
         ]));
 
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("texrect", "renderable", 50, 50, undefined, man,
+            new RenderableTexturedRect("texrect", 50, 50, undefined, man,
                 man.width,        man.height,
-                vMath.vec2(0, 0), vMath.vec2(man.width, man.height)),
-            new Position("pos3", "position", vMath.vec3(250, 250)),
-            new Movable("mov1", "movable", vMath.vec2(20, 0))
+                vec2(0, 0), vec2(man.width, man.height)),
+            new Position("pos3", "position",vec3(250, 250)),
+            new Movable("mov1", "movable", vec2(20, 0))
         ]));
 
-        s = new Scene("scene1", entities);
+        let tsize = vec2(64, 64);
+        let m = new Map(map, {
+            0: {
+                origin: vec2(0,0),
+                size: tsize
+            },
+            1: {
+                origin: vec2(64,0),
+                size: tsize
+            },
+            2: {
+                origin: vec2(0,64),
+                size: tsize
+            },
+            3: {
+                origin: vec2(64, 64),
+                size: tsize
+            }
+        }, vec2(32, 32));
+
+        s = new Scene("scene1", entities, m);
         this.addScene(s);
         this.loadScene(s);
 
         // for testing
+        window.map   = m;
         window.vMath = vMath;
         window.mMath = mMath;
 
@@ -119,7 +143,14 @@ window.g = new Game({
         }
 
         // TODO: there has to be a better way to handle colors
-        rect_renderable.color = new Float32Array([...fill.arr, ...fill.arr, ...fill.arr, ...fill.arr])
+        rect_renderable.color = fill;
+
+        this.render.draw(this.activeScene.map.tiles[0], vMath.vec2(200, 200));
+        this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(265, 200));
+        this.render.draw(this.activeScene.map.tiles[2], vMath.vec2(200, 265));
+        this.render.draw(this.activeScene.map.tiles[3], vMath.vec2(265, 265));
+
+        this.render.draw(this.activeScene.map.tiles[0], vMath.vec2(400, 200), {rotate: Math.PI / 4});
 
         return persist;
     })

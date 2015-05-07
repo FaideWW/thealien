@@ -8,8 +8,7 @@ import {vMath, mMath, color} from "./utils.js";
 let  {floor} = Math;
 
 
-// TODO: implement untextured rect rendering
-class WebGLRenderer {
+export default class WebGLRenderer {
     constructor(opts) {
         if (!(opts.el && opts.resolution)) {
             return;
@@ -128,8 +127,6 @@ class WebGLRenderer {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-        // flip the texture's y coordinate (see aside @line 156)
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
@@ -169,13 +166,6 @@ class WebGLRenderer {
 
         //let perspective_matrix = mMath.perspective(45, 640.0/480.0, 0.1, 100.0);
 
-        /*
-        * aside:
-        *   webGL subscribes to the view that the y axis runs bottom-to-top, meaning that y increases as we move up.
-        *   browsers (and thus events and mouse-movement) view the opposite; the y-axis runs top-to-bottom.
-        *   we compensate for this here (and above for texture mapping) by flipping the frustum in our
-         *  camera projection to take top-down y coordinates and draw them bottom-up.
-        */
         let ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10);
 
         let transformation_matrix = mMath.compose()
@@ -287,82 +277,3 @@ class WebGLRenderer {
 
     }
 }
-
-
-class RenderableSolidRect extends Component {
-    constructor(c_type, c_name, ...args) {
-        super(c_type, c_name);
-
-        let [half_width = 0, half_height = 0, fill = color(), origin = vMath.vec3()] = args;
-
-        this.type = "solidrect";
-        this.origin = origin;
-
-        // build the vertex array (TRIANGLE_STRIP order)
-        this.verts = new Float32Array([
-             half_width - origin.x,  half_height - origin.y, 0.0 - origin.z,
-            -half_width - origin.x,  half_height - origin.y, 0.0 - origin.z,
-             half_width - origin.x, -half_height - origin.y, 0.0 - origin.z,
-            -half_width - origin.x, -half_height - origin.y, 0.0 - origin.z
-        ]);
-
-        // each of the four vertices has an individual color
-        //TODO: decouple this a bit from color object
-        this.color = new Float32Array([...fill.arr, ...fill.arr, ...fill.arr, ...fill.arr]);
-    }
-}
-
-class RenderableTexturedRect extends Component {
-    constructor(c_type, c_name, ...args) {
-        super(c_type, c_name);
-
-
-        //TODO: pull out texture data into a texture object
-
-        let [half_width = 0, half_height = 0, origin = vMath.vec3(),
-                tex_image, tex_width = 1, tex_height = 1, tex_bottom_left = vMath.vec2(), tex_top_right = vMath.vec2()] = args;
-
-
-        this.type = "texturedrect";
-        this.origin = origin;
-
-
-        // tex_image should already be image data pre-loaded... check for tex_image.__loaded
-
-        this.initialized = false;
-        this.gl_texture = null;
-
-        this.tex_data = tex_image;
-
-
-        this.tex_coords = new Float32Array([
-            tex_top_right.x   / tex_width, tex_bottom_left.y / tex_height, // bottom right
-            tex_bottom_left.x / tex_width, tex_bottom_left.y / tex_height, // bottom left
-            tex_top_right.x   / tex_width, tex_top_right.y   / tex_height, // top right
-            tex_bottom_left.x / tex_width, tex_top_right.y   / tex_height  // top left
-        ]);
-
-        this.verts = new Float32Array([
-             half_width - origin.x,  half_height - origin.y, 0.0 - origin.z, // top right
-            -half_width - origin.x,  half_height - origin.y, 0.0 - origin.z, // top left
-             half_width - origin.x, -half_height - origin.y, 0.0 - origin.z, // bottom right
-            -half_width - origin.x, -half_height - origin.y, 0.0 - origin.z  // bottom left
-        ]);
-
-    }
-}
-
-class RenderableSolidPoly extends Component {
-    constructor(c_type, c_name, ...args) {
-        super(c_type, c_name);
-
-        let [points = [], fill = color(), stroke = color()] = args;
-
-        this.points = points;
-
-        this.fill = fill;
-        this.stroke = stroke;
-    }
-}
-
-export {WebGLRenderer, RenderableSolidRect, RenderableTexturedRect, RenderableSolidPoly};

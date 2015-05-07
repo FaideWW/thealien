@@ -6,7 +6,7 @@ import {Registry} from "./component.js";
 
 export default class GameSystem {
     constructor(s_id = `system_${Date.now().toString()}`,
-                components = []) {
+                component_names = []) {
         "use strict";
 
         this._name = s_id;
@@ -14,7 +14,7 @@ export default class GameSystem {
         this._lock = 0;
         this.__flags = {};
 
-        components.forEach((component) => {
+        component_names.forEach((component) => {
             let flag = Registry.getFlag(component);
             this._lock |= flag;
             this.__flags[component] = flag;

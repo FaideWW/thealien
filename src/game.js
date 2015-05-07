@@ -4,7 +4,7 @@
 'use strict';
 
 import Entity from "./entity.js";
-import {WebGLRenderer} from "./render.js";
+import WebGLRenderer from "./render.js";
 import ResourceManager from "./resource.js";
 import Interface from "./interface.js";
 import {rAF, cRAF} from "./utils.js";

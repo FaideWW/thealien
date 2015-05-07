@@ -24,6 +24,11 @@ export default class Scene {
         return this._name;
     }
 
+    get map() {
+        "use strict";
+        return this.__map;
+    }
+
     *filter(predicate) {
         "use strict";
 
