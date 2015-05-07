@@ -42,7 +42,8 @@ class RenderableSolidRect extends Component {
 
 class RenderableTexturedRect extends Component {
     constructor(c_name, half_width = 0, half_height = 0, origin = vMath.vec3(),
-                tex_image = null, tex_width = 1, tex_height = 1, tex_top_left = vMath.vec2(), tex_bottom_right = vMath.vec2()) {
+                tex_image = null, tex_width = 1, tex_height = 1, tex_top_left = vMath.vec2(), tex_bottom_right = vMath.vec2(),
+                opacity = 1) {
         super(c_name, "renderable");
 
 
@@ -78,6 +79,8 @@ class RenderableTexturedRect extends Component {
             half_width - origin.x, -half_height - origin.y, 0.0 - origin.z, // bottom right
             -half_width - origin.x, -half_height - origin.y, 0.0 - origin.z  // bottom left
         ]);
+
+        this.opacity = opacity;
 
     }
 }

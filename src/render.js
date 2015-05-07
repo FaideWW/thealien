@@ -38,7 +38,9 @@ export default class WebGLRenderer {
 
 
         try {
-            this._ctx = el.getContext('webgl') || el.getContext("experimental-webgl");
+            this._ctx = el.getContext('webgl', {
+            }) || el.getContext("experimental-webgl", {
+            });
         } catch (e) {
             console.error(e);
         }
@@ -52,12 +54,16 @@ export default class WebGLRenderer {
         }
 
         // init the canvas (from MDN)
+        let gl = this._ctx;
 
-        if (this._ctx) {
-            this._ctx.clearColor(1.0, 0.0, 1.0, 1.0);                      // Set clear color to black, fully opaque
-            this._ctx.enable(this._ctx.DEPTH_TEST);                               // Enable depth testing
-            this._ctx.depthFunc(this._ctx.LEQUAL);                                // Near things obscure far things
-            this._ctx.clear(this._ctx.COLOR_BUFFER_BIT|this._ctx.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
+        if (gl) {
+            gl.clearColor(1.0, 0.0, 1.0, 1.0);                      // Set clear color to black, fully opaque
+            gl.disable(gl.DEPTH_TEST);                               // Enable depth testing
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+            gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
+            gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
         }
 
         // one set of shaders per renderable type
@@ -127,7 +133,7 @@ export default class WebGLRenderer {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -271,6 +277,9 @@ export default class WebGLRenderer {
 
         let texSampler = gl.getUniformLocation(shader, "uSampler");
         gl.uniform1i(texSampler, 0);
+
+        let alpha = gl.getUniformLocation(shader, "uAlpha");
+        gl.uniform1f(alpha, renderable.opacity);
 
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

@@ -64,7 +64,7 @@ window.g = new Game({
         ]));
 
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("texrect", 50, 50, undefined, man,
+            new RenderableTexturedRect("texrect", 32, 32, undefined, man,
                 man.width,        man.height,
                 vec2(0, 0), vec2(man.width, man.height)),
             new Position("pos3", "position",vec3(250, 250)),
