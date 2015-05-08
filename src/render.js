@@ -3,6 +3,8 @@
  */
 "use strict";
 
+// TODO: lots of optimizations can be made here; e.g. binding attribute buffers on every draw call is pretty expensive
+
 import {Component, Registry} from "./component.js";
 import {vMath, mMath, color} from "./utils.js";
 let  {floor} = Math;
@@ -152,8 +154,12 @@ export default class WebGLRenderer {
             this.__lock = renderable | position;
         }
 
+        this.clear();
 
-            this.clear();
+        if (scene.map) {
+            this.drawMap(scene.map);
+        }
+
         scene.each((e) => {
             let e_pos = e.getComponent(position);
             let e_ren = e.getComponent(renderable);
@@ -191,6 +197,29 @@ export default class WebGLRenderer {
         } else if (renderable.type === 'texturedrect') {
             this._drawTexturedRect(renderable, ortho_matrix, transformation_matrix.done());
         }
+    }
+
+    // TODO: when camera functionality is added, maporigin will change to camera offset
+    drawMap(map, map_origin = vMath.vec2()) {
+        let tileW = map.tilewidth;
+        let tileH = map.tileheight;
+
+        map.render.forEach((layer) => {
+
+            for (let y = 0; y < layer.length; y += 1) {
+                for (let x = 0; x < layer[y].length; x += 1) {
+                    let tile = layer[y][x];
+                    if (tile === 0) continue;
+
+                    let renderable = map.tiles[tile];
+
+                    if (renderable) {
+                        let tile_position = vMath.vec2(tileW * (x + 0.5), tileH * (y + 0.5));
+                        this.draw(renderable, vMath.add(map_origin, tile_position));
+                    }
+                }
+            }
+        });
     }
 
     // draw subroutines
@@ -238,7 +267,7 @@ export default class WebGLRenderer {
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.initialized === false) {
             renderable.gl_texture = this._initTexture(renderable.tex_data);
-            renderable.initialied = true;
+            renderable.initialized = true;
         }
 
         let gl = this.ctx,

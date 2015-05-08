@@ -6,7 +6,7 @@ import GameSystem from './system.js';
 import {Component} from './component.js';
 import {vMath} from './utils.js';
 
-class CollisionSystem extends GameSystem {
+export default class CollisionSystem extends GameSystem {
     constructor(s_id, components) {
         "use strict";
         super(s_id, components);
@@ -85,20 +85,3 @@ class CollisionSystem extends GameSystem {
         );
     }
 }
-
-class AABBCollidable extends Component {
-    constructor(c_id, c_name, ...args) {
-        "use strict";
-        super(c_id, c_name);
-        let [half_width = 0, half_height = 0] = args;
-
-        this.type = 'AABB';
-
-        this.hw = half_width;
-        this.hh = half_height;
-
-        this.__collided = false;
-    }
-}
-
-export {CollisionSystem, AABBCollidable};

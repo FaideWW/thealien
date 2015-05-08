@@ -12,7 +12,8 @@ import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
-import {CollisionSystem, AABBCollidable} from './collision.js';
+import CollisionSystem from './collision.js';
+import AABBCollidable from './collidable.js';
 import Map from './map.js';
 
 let canvas = document.querySelector("#screen");
@@ -52,15 +53,15 @@ window.g = new Game({
         let {vec2, vec3} = vMath;
 
         entities.push(new Entity("whiterect", [
-            new RenderableSolidRect("rect1", 50, 50, color(1.0,1.0,1.0)),
+            new RenderableSolidRect("rect1", 50, 50, color(1.0,1.0,1.0,0.0)),
             new Position("pos1", "position", vec3(150, 150)),
-            new AABBCollidable("col1", "collidable", 50, 50)
+            new AABBCollidable("col1", 50, 50)
         ]));
 
         entities.push(new Entity("blackrect", [
             new RenderableSolidRect("rect2", 50, 50),
             new Position("pos2", "position",vec3(50, 50)),
-            new AABBCollidable("col2", "collidable", 50, 50)
+            new AABBCollidable("col2", 50, 50)
         ]));
 
         entities.push(new Entity("man", [
@@ -73,23 +74,49 @@ window.g = new Game({
 
         let tsize = vec2(64, 64);
         let m = new Map(map, {
-            0: {
+            1: {
                 origin: vec2(0,0),
                 size: tsize
             },
-            1: {
+            2: {
                 origin: vec2(64,0),
                 size: tsize
             },
-            2: {
+            3: {
                 origin: vec2(0,64),
                 size: tsize
             },
-            3: {
+            4: {
                 origin: vec2(64, 64),
                 size: tsize
             }
-        }, vec2(32, 32));
+        },
+            vec2(25, 25),
+        [
+            {
+                collidable: true,
+                data:  [[1,1,1,1,1],
+                        [1,1,1,1,1],
+                        [1,1,1,1,1],
+                        [1,1,1,1,1],
+                        [1,1,1,1,1]]
+            },
+            {
+                data:  [[0,0,0,0,0],
+                        [0,2,2,2,0],
+                        [0,2,2,2,0],
+                        [0,2,2,2,0],
+                        [0,0,0,0,0]]
+            },
+            {
+                collidable: true,
+                data:  [[0,0,0,0,4],
+                        [0,0,0,0,0],
+                        [0,0,3,0,0],
+                        [0,0,0,0,0],
+                        [0,0,0,0,0]]
+            }
+        ]);
 
         s = new Scene("scene1", entities, m);
         this.addScene(s);
@@ -145,12 +172,12 @@ window.g = new Game({
         // TODO: there has to be a better way to handle colors
         rect_renderable.color = fill;
 
-        this.render.draw(this.activeScene.map.tiles[0], vMath.vec2(200, 200));
-        this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(265, 200));
-        this.render.draw(this.activeScene.map.tiles[2], vMath.vec2(200, 265));
-        this.render.draw(this.activeScene.map.tiles[3], vMath.vec2(265, 265));
+        this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(200, 200));
+        this.render.draw(this.activeScene.map.tiles[2], vMath.vec2(265, 200));
+        this.render.draw(this.activeScene.map.tiles[3], vMath.vec2(200, 265));
+        this.render.draw(this.activeScene.map.tiles[4], vMath.vec2(265, 265));
 
-        this.render.draw(this.activeScene.map.tiles[0], vMath.vec2(400, 200), {rotate: Math.PI / 4});
+        this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(400, 200), {rotate: Math.PI / 4});
 
         return persist;
     })
