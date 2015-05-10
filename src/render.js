@@ -4,6 +4,13 @@
 "use strict";
 
 // TODO: lots of optimizations can be made here; e.g. binding attribute buffers on every draw call is pretty expensive
+/**
+ * solution: batch draw calls
+ *
+ * sort draws with the following priority: same shader program -> same attributes -> same texture -> same uniforms
+ *
+ * http://stackoverflow.com/questions/15561871/the-fastest-way-to-batch-calls-in-webgl
+ */
 
 import {Component, Registry} from "./component.js";
 import {vMath, mMath, color} from "./utils.js";
@@ -190,12 +197,15 @@ export default class WebGLRenderer {
             transformation_matrix.scale(transform.scale);
         }
 
+        let pMatrix = new Float32Array(mMath.flatten(ortho_matrix));
+        let tMatrix = new Float32Array(mMath.flatten(transformation_matrix.done()));
+
 
         // use subroutine to draw the shape
         if (renderable.type === 'solidrect') {
-            this._drawSolidRect(renderable, ortho_matrix, transformation_matrix.done());
+            this._drawSolidRect(renderable, pMatrix, tMatrix);
         } else if (renderable.type === 'texturedrect') {
-            this._drawTexturedRect(renderable, ortho_matrix, transformation_matrix.done());
+            this._drawTexturedRect(renderable, pMatrix, tMatrix);
         }
     }
 
@@ -255,9 +265,9 @@ export default class WebGLRenderer {
 
         // declare uniform variables
         let pUniform = gl.getUniformLocation(shader, "uPMatrix");
-        gl.uniformMatrix4fv(pUniform, false, new Float32Array(mMath.flatten(pMatrix)));
+        gl.uniformMatrix4fv(pUniform, false, pMatrix);
         let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
-        gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mMath.flatten(tMatrix)));
+        gl.uniformMatrix4fv(mvUniform, false, tMatrix);
 
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -274,35 +284,46 @@ export default class WebGLRenderer {
             shader = this._shaders.textured_rect;
         let {gl_texture, tex_coords, verts} = renderable;
 
+
+        if (!renderable.__shaderBuffers) {
+            renderable.__shaderBuffers = {
+                texture: gl.createBuffer(),
+                vertices: gl.createBuffer()
+            };
+        }
+
         // activate the texture
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, gl_texture);
 
         gl.useProgram(shader);
 
+        let vertex_position_attribute,
+            texture_coordinate_attribute;
 
         // TODO: does this attach to the renderable?
-        let vertex_position_attribute = gl.getAttribLocation(shader, "aVertexPosition");
+        vertex_position_attribute = gl.getAttribLocation(shader, "aVertexPosition");
         gl.enableVertexAttribArray(vertex_position_attribute);
-        let texture_coordinate_attribute = gl.getAttribLocation(shader, "aTextureCoord");
+        texture_coordinate_attribute = gl.getAttribLocation(shader, "aTextureCoord");
         gl.enableVertexAttribArray(texture_coordinate_attribute);
 
-        let texture_buffer = gl.createBuffer();
+        let texture_buffer = renderable.__shaderBuffers.texture;
         gl.bindBuffer(gl.ARRAY_BUFFER, texture_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, tex_coords, gl.STATIC_DRAW);
         gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 0, 0);
 
-        let vertices_buffer = gl.createBuffer();
+        let vertices_buffer = renderable.__shaderBuffers.vertices;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
 
-
         // declare uniform variables
+
         let pUniform = gl.getUniformLocation(shader, "uPMatrix");
-        gl.uniformMatrix4fv(pUniform, false, new Float32Array(mMath.flatten(pMatrix)));
+        gl.uniformMatrix4fv(pUniform, false, pMatrix);
+
         let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
-        gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mMath.flatten(tMatrix)));
+        gl.uniformMatrix4fv(mvUniform, false, tMatrix);
 
         let texSampler = gl.getUniformLocation(shader, "uSampler");
         gl.uniform1i(texSampler, 0);
