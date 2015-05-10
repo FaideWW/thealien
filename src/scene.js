@@ -57,7 +57,7 @@ export default class Scene {
     each(cb, lock, thisArg) {
         "use strict";
 
-        let entities = this.filter((e) => e.matchesLock(lock));
+        let entities = this.filter((e) => e.has(lock));
         let e = entities.next();
 
         while (!e.done) {

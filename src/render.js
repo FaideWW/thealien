@@ -168,8 +168,8 @@ export default class WebGLRenderer {
         }
 
         scene.each((e) => {
-            let e_pos = e.getComponent(position);
-            let e_ren = e.getComponent(renderable);
+            let e_pos = e.get(position);
+            let e_ren = e.get(renderable);
 
             this.draw(e_ren, e_pos);
 

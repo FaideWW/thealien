@@ -15,7 +15,7 @@ export default class Entity {
         this._key = 0;
         this._components = {};
 
-        components.forEach((c) => this.addComponent(c));
+        components.forEach((c) => this.add(c));
     }
 
     get name() {
@@ -33,24 +33,24 @@ export default class Entity {
         return this._key;
     }
 
-    matchesLock(lock) {
-        "use strict";
-        return ((this.key & lock) === lock);
-    }
-
-    addComponent(component) {
+    add(component) {
         "use strict";
         let {flag} = component;
         this._components[flag] = component;
         this._key = (this._key | flag);
     }
 
-    getComponent(flag) {
+    get(flag) {
         "use strict";
         return this._components[flag];
     }
 
-    removeComponent(component) {
+    has(lock) {
+        "use strict";
+        return ((this.key & lock) === lock);
+    }
+
+    remove(component) {
         "use strict";
         let {flag, c_id} = component;
 

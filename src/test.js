@@ -128,7 +128,7 @@ window.g = new Game({
         let renderable = Registry.getFlag("renderable");
         let collidable = Registry.getFlag("collidable");
 
-        let e_vel = entities[2].getComponent(movable).velocity;
+        let e_vel = entities[2].get(movable).velocity;
 
         persist.time   = persist.time   || 0;
         persist.radius = persist.radius || 100;
@@ -147,12 +147,12 @@ window.g = new Game({
 
         let mouse = this.input.mouse.pos;
 
-        let rect_pos = entities[1].getComponent(position);
+        let rect_pos = entities[1].get(position);
         rect_pos.x = mouse.x;
         rect_pos.y = mouse.y;
 
-        let rect_collidable = entities[1].getComponent(collidable);
-        let rect_renderable = entities[1].getComponent(renderable);
+        let rect_collidable = entities[1].get(collidable);
+        let rect_renderable = entities[1].get(renderable);
 
         let fill;
         if (rect_collidable.__collided) {

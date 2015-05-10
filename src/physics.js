@@ -18,8 +18,8 @@ class PhysicsSystem extends GameSystem{
         let interpolation = dt / 1000;
 
         scene.each((e) => {
-            let movable = e.getComponent(this.__flags['movable']);
-            let position = e.getComponent(this.__flags['position']);
+            let movable = e.get(this.__flags['movable']);
+            let position = e.get(this.__flags['position']);
 
             // non-writable values
             let {x: vx, y: vy} = movable.velocity;

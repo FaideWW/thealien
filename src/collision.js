@@ -38,10 +38,10 @@ export default class CollisionSystem extends GameSystem {
                     collision_table.push([entity1.id, entity2.id]);
 
                     // do this
-                    let collidable1 = entity1.getComponent(fcollidable);
-                    let collidable2 = entity2.getComponent(fcollidable);
-                    let position1 = entity1.getComponent(fposition);
-                    let position2 = entity2.getComponent(fposition);
+                    let collidable1 = entity1.get(fcollidable);
+                    let collidable2 = entity2.get(fcollidable);
+                    let position1 = entity1.get(fposition);
+                    let position2 = entity2.get(fposition);
 
                     collidable1.__collided = false;
                     collidable2.__collided = false;
