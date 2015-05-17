@@ -1,0 +1,195 @@
+{ "frames": {
+   "BACKGROUND 0.png": {
+    "frame": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 1.png": {
+    "frame": { "x": 20, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 2.png": {
+    "frame": { "x": 40, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 3.png": {
+    "frame": { "x": 60, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 4.png": {
+    "frame": { "x": 80, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 5.png": {
+    "frame": { "x": 100, "y": 0, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 6.png": {
+    "frame": { "x": 0, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 7.png": {
+    "frame": { "x": 20, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 8.png": {
+    "frame": { "x": 40, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 9.png": {
+    "frame": { "x": 60, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 10.png": {
+    "frame": { "x": 80, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 11.png": {
+    "frame": { "x": 100, "y": 20, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 12.png": {
+    "frame": { "x": 0, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 13.png": {
+    "frame": { "x": 20, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 14.png": {
+    "frame": { "x": 40, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 15.png": {
+    "frame": { "x": 60, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 16.png": {
+    "frame": { "x": 80, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 17.png": {
+    "frame": { "x": 100, "y": 40, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 18.png": {
+    "frame": { "x": 0, "y": 60, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 19.png": {
+    "frame": { "x": 20, "y": 60, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 20.png": {
+    "frame": { "x": 40, "y": 60, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 21.png": {
+    "frame": { "x": 60, "y": 60, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   },
+   "BACKGROUND 22.png": {
+    "frame": { "x": 80, "y": 60, "w": 20, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 20 },
+    "sourceSize": { "w": 20, "h": 20 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.1-beta3",
+  "image": "C:\Users\faide\dev\thealien\img\jetroid\tiles\sheet.png",
+  "format": "RGBA8888",
+  "size": { "w": 128, "h": 128 },
+  "scale": "1"
+ }
+}
