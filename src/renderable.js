@@ -64,10 +64,10 @@ class RenderableTexturedRect extends Component {
 
 
         this.tex_coords = new Float32Array([
-            tex_bottom_right.x   / tex_width, tex_bottom_right.y   / tex_height, // top right
-            tex_top_left.x / tex_width, tex_bottom_right.y   / tex_height,  // top left
-            tex_bottom_right.x   / tex_width, tex_top_left.y / tex_height, // bottom right
-            tex_top_left.x / tex_width, tex_top_left.y / tex_height // bottom left
+            tex_top_left.x / tex_width, tex_top_left.y / tex_height, // top left
+            tex_bottom_right.x   / tex_width, tex_top_left.y / tex_height, // top right
+            tex_top_left.x / tex_width, tex_bottom_right.y   / tex_height,  // bottom left
+            tex_bottom_right.x   / tex_width, tex_bottom_right.y   / tex_height, // bottom right
         ]);
 
         console.log(c_name);
