@@ -2,6 +2,8 @@
  * Created by faide on 2015-04-01.
  */
 
+import {Registry} from './component.js';
+
 export default class Entity {
     constructor(id          = `entity_${Date.now().toString()}`,
                 components  = []                     ) {

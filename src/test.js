@@ -12,6 +12,7 @@ import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
+import {IdleState, IdleStateSystem, MovingDownStateSystem, MovingUpStateSystem} from './state.js';
 import CollisionSystem from './collision.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
@@ -37,8 +38,13 @@ window.g = new Game({
         man: 'img/man.png',
         map: 'img/map.png'
     },
-    phases: ['collision', 'physics'],
+    phases: ['state', 'collision', 'physics'],
     systems: {
+        state: [
+            new IdleStateSystem(),
+            new MovingDownStateSystem(),
+            new MovingUpStateSystem()
+        ],
         physics: [
             new PhysicsSystem(),
             new CollisionSystem()
@@ -69,7 +75,8 @@ window.g = new Game({
                 man.width,        man.height,
                 vec2(0, 0), vec2(man.width, man.height)),
             new Position("pos3", "position",vec3(250, 250)),
-            new Movable("mov1", "movable", vec2(20, 0))
+            new Movable("mov1", "movable", vec2(20, 0)),
+            new IdleState()
         ]));
 
         let tsize = vec2(64, 64);
@@ -127,6 +134,7 @@ window.g = new Game({
         let movable = Registry.getFlag("movable");
         let renderable = Registry.getFlag("renderable");
         let collidable = Registry.getFlag("collidable");
+        let state      = Registry.getFlag("state");
 
         let e_vel = entities[2].get(movable).velocity;
 
@@ -170,6 +178,8 @@ window.g = new Game({
         this.render.draw(this.activeScene.map.tiles[4], vMath.vec2(265, 265));
 
         this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(400, 200), {rotate: Math.PI / 4});
+
+        console.log(entities[2].get(state).state_name);
 
         return persist;
     })
