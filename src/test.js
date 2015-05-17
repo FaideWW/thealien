@@ -25,7 +25,9 @@ let s = null;
 let shaders = {
     solid_rect: solid_rect_shaders,
     textured_rect: textured_rect_shaders
-};
+},
+    twidth = 64,
+    theight = 64;
 
 window.g = new Game({
     canvasSelector: "#screen",
@@ -37,6 +39,23 @@ window.g = new Game({
     images: {
         man: 'img/man.png',
         map: 'img/map.png'
+    },
+    sprites: {
+        map: {
+            texture: 'map',
+            sheet: {
+                1: { x: 0,  y: 0,  w: twidth, h: theight },
+                2: { x: 64, y: 0,  w: twidth, h: theight },
+                3: { x: 0,  y: 64, w: twidth, h: theight },
+                4: { x: 64, y: 64, w: twidth, h: theight }
+            }
+        },
+        man: {
+            texture: 'man',
+            sheet: {
+                idle0: { x: 0, y: 0, w: 64, h: 64 }
+            }
+        }
     },
     phases: ['state', 'collision', 'physics'],
     systems: {
@@ -51,12 +70,10 @@ window.g = new Game({
         ]
     }
 })
-    .ready(function (textures) { // don't use arrow here, we need to preserve execution context
+    .ready(function (textures, sprites) { // don't use arrow here, we need to preserve execution context
         "use strict";
 
-        debugger;
         // solid rects
-        let {man, map} = textures;
         let {vec2, vec3} = vMath;
 
         entities.push(new Entity("whiterect", [
@@ -71,33 +88,16 @@ window.g = new Game({
             new AABBCollidable("col2", 50, 50)
         ]));
 
+        console.log(sprites.man.idle0);
+
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("texrect", 32, 32, undefined, man,
-                vec2(0, 0), vec2(man.width, man.height)),
+            new RenderableTexturedRect("texrect", 32, 32, sprites.man.idle0),
             new Position("pos3", "position",vec3(250, 250)),
             new Movable("mov1", "movable", vec2(20, 0)),
             new IdleState()
         ]));
 
-        let tsize = vec2(64, 64);
-        let m = new Map(map, {
-            1: {
-                origin: vec2(0,0),
-                size: tsize
-            },
-            2: {
-                origin: vec2(64,0),
-                size: tsize
-            },
-            3: {
-                origin: vec2(0,64),
-                size: tsize
-            },
-            4: {
-                origin: vec2(64, 64),
-                size: tsize
-            }
-        },
+        let m = new Map(sprites.map,
             vec2(25, 25),
         [
             {

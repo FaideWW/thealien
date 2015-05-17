@@ -75,6 +75,8 @@ export default class WebGLRenderer {
             gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
         }
 
+        this._textures = {};
+
         // one set of shaders per renderable type
         this._shaders = {};
         for (let mode in shader_programs) {
@@ -136,6 +138,9 @@ export default class WebGLRenderer {
     }
 
     _initTexture(image) {
+
+        if (this._textures[image.src]) return this._textures[image.src];
+
         let gl = this.ctx;
 
         let texture = gl.createTexture();
@@ -146,6 +151,8 @@ export default class WebGLRenderer {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
         gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this._textures[image.src] = texture;
 
         return texture;
     }
@@ -276,14 +283,16 @@ export default class WebGLRenderer {
 
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.initialized === false) {
-            renderable.gl_texture = this._initTexture(renderable.texture.img);
+            renderable.gl_texture = this._initTexture(renderable.sprite.texture.img);
             renderable.initialized = true;
+
+            console.log(this._textures);
         }
 
         let gl = this.ctx,
             shader = this._shaders.textured_rect;
-        let {gl_texture, tex_coords, verts} = renderable;
-
+        let {gl_texture, verts} = renderable;
+        let tex_coords = renderable.sprite.coords;
 
         if (!renderable.__shaderBuffers) {
             renderable.__shaderBuffers = {

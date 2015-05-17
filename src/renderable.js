@@ -41,9 +41,8 @@ class RenderableSolidRect extends Component {
 }
 
 class RenderableTexturedRect extends Component {
-    constructor(c_name, half_width = 0, half_height = 0, origin = vMath.vec3(),
-                tex_image = null, tex_top_left = vMath.vec2(), tex_bottom_right = vMath.vec2(),
-                opacity = 1) {
+    constructor(c_name, half_width = 0, half_height = 0, tex_region = null, opacity = 1,
+                origin_x = 0, origin_y = 0, origin_z = 0) {
         super(c_name, "renderable");
 
 
@@ -52,7 +51,7 @@ class RenderableTexturedRect extends Component {
 
 
         this.type = "texturedrect";
-        this.origin = origin;
+        this.origin = vMath.vec3(origin_x, origin_y, origin_z);
 
 
         // tex_image should already be image data pre-loaded... check for tex_image.__loaded
@@ -60,24 +59,13 @@ class RenderableTexturedRect extends Component {
         this.initialized = false;
         this.gl_texture = null;
 
-        this.texture = tex_image;
-
-        let tex_width  = this.texture.width,
-            tex_height = this.texture.height;
-
-
-        this.tex_coords = new Float32Array([
-            tex_top_left.x     / tex_width, tex_top_left.y     / tex_height, // top left
-            tex_bottom_right.x / tex_width, tex_top_left.y     / tex_height, // top right
-            tex_top_left.x     / tex_width, tex_bottom_right.y / tex_height, // bottom left
-            tex_bottom_right.x / tex_width, tex_bottom_right.y / tex_height  // bottom right
-        ]);
+        this.sprite = tex_region;
 
         this.verts = new Float32Array([
-            -half_width - origin.x, -half_height - origin.y, 0.0 - origin.z, // top left
-             half_width - origin.x, -half_height - origin.y, 0.0 - origin.z, // top right
-            -half_width - origin.x,  half_height - origin.y, 0.0 - origin.z, // bottom left
-             half_width - origin.x,  half_height - origin.y, 0.0 - origin.z  // bottom right
+            -half_width - this.origin.x, -half_height - this.origin.y, 0.0 - this.origin.z, // top left
+             half_width - this.origin.x, -half_height - this.origin.y, 0.0 - this.origin.z, // top right
+            -half_width - this.origin.x,  half_height - this.origin.y, 0.0 - this.origin.z, // bottom left
+             half_width - this.origin.x,  half_height - this.origin.y, 0.0 - this.origin.z  // bottom right
         ]);
 
         this.opacity = opacity;

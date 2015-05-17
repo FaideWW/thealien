@@ -7,6 +7,7 @@ import Entity from "./entity.js";
 import WebGLRenderer from "./render.js";
 import ResourceManager from "./resource.js";
 import Interface from "./interface.js";
+import {SpriteLoader} from "./texture.js";
 import {rAF, cRAF} from "./utils.js";
 
 /**
@@ -30,7 +31,7 @@ export default class {
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
         let {canvasSelector: selector, shaders, resolution,
-                images,
+                images, sprites,
                 render, audio, event,
                 phases, systems = {}} = options;
 
@@ -49,7 +50,9 @@ export default class {
 
         ResourceManager.loadResources(images)
             .then((textures) => {
-                this.__resources_loaded.call(this, textures);
+
+                console.log(textures);
+                this.__resources_loaded.call(this, textures, SpriteLoader(textures, sprites));
                 this.__loaded = true;
             })
             .catch((error) => console.error(error));

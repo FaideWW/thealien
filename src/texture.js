@@ -5,10 +5,36 @@
 
 // TODO: universal tilesheet/tile class for applying/rendering textures
 
+function SpriteLoader (textures, sprite_map) {
+    "use strict";
+
+    let sprites = {};
+    for (let s in sprite_map) {
+        if (sprite_map.hasOwnProperty(s)) {
+            let sprite = sprite_map[s];
+            if (!textures[sprite.texture]) {
+                console.error(`Texture missing: ${sprite.texture}`);
+                return;
+            }
+
+            sprites[s] = {};
+
+            for (let r in sprite.sheet) {
+                if (sprite.sheet.hasOwnProperty(r)) {
+                    let texture = textures[sprite.texture];
+                    let {x, y, w, h} = sprite.sheet[r];
+                    sprites[s][r] = new TextureRegion(texture, x, y, w, h);
+                }
+            }
+        }
+    }
+
+    return sprites;
+}
+
 class Texture {
     constructor(imgdata, width, height) {
         "use strict";
-        this.__loaded = false;
         this._img = imgdata;
         this._width = width;
         this._height = height;
@@ -30,8 +56,9 @@ class Texture {
     }
 }
 
-class SubTexture {
+class TextureRegion {
     constructor(texture, x, y, width, height) {
+
         "use strict";
         this._tex = texture;
         this._x   = x;
@@ -39,18 +66,12 @@ class SubTexture {
         this._w   = width;
         this._h   = height;
 
-        this._gl_texture = null;
         this._tex_coords = new Float32Array([
              this.x               / this.texture.width,  this.y / this.texture.height,
             (this.x + this.width) / this.texture.width,  this.y / this.texture.height,
              this.x               / this.texture.width, (this.y + this.height) / this.texture.height,
             (this.x + this.width) / this.texture.width, (this.y + this.height) / this.texture.height
         ]);
-    }
-
-    get initialized() {
-        "use strict";
-        return this.texture.__loaded
     }
 
     get texture() {
@@ -77,6 +98,11 @@ class SubTexture {
         "use strict";
         return this._h;
     }
+
+    get coords() {
+        "use strict";
+        return this._tex_coords
+    }
 }
 
-export {Texture, SubTexture};
+export {Texture, TextureRegion, SpriteLoader};

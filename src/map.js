@@ -6,21 +6,20 @@ import {RenderableTexturedRect} from './renderable.js';
 import AABBCollidable from './collidable.js';
 import {vMath} from './utils.js';
 
-function processTiles(tile_image, tile_data, tile_halfdims) {
+function processTiles(tile_sprites, tile_halfdims) {
     "use strict";
 
     let tiles = {};
-    for (let tile_id in tile_data) {
-        if (tile_data.hasOwnProperty(tile_id)) {
+    for (let tile_id in tile_sprites) {
+        if (tile_sprites.hasOwnProperty(tile_id)) {
             if (tile_id === 0) {
                 console.error('Tile id 0 is reserved');
                 continue;
             }
 
-            let tile = tile_data[tile_id];
+            let tile = tile_sprites[tile_id];
 
-            tiles[tile_id] = new RenderableTexturedRect(tile_id, tile_halfdims.x, tile_halfdims.y, undefined, tile_image,
-                tile.origin, vMath.add(tile.origin, tile.size));
+            tiles[tile_id] = new RenderableTexturedRect(tile_id, tile_halfdims.x, tile_halfdims.y, tile);
         }
     }
 
@@ -58,7 +57,7 @@ function processMap(map_data) {
 }
 
 export default class Map {
-    constructor(tile_image, tile_data, tile_halfdims, map_data) {
+    constructor(tile_sprites, tile_halfdims, map_data) {
         "use strict";
 
         this.__collidable  = new AABBCollidable("maptile", tile_halfdims.x, tile_halfdims.y);
@@ -71,6 +70,6 @@ export default class Map {
         this.tilewidth  = tile_halfdims.x * 2;
         this.tileheight = tile_halfdims.y * 2;
 
-        this.tiles = processTiles(tile_image, tile_data, tile_halfdims);
+        this.tiles = processTiles(tile_sprites, tile_halfdims);
     }
 }
