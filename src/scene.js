@@ -54,11 +54,12 @@ export default class Scene {
         delete this.__entities[e_id];
     }
 
-    each(cb, lock, thisArg) {
+    each(cb, lock_or_filter, thisArg) {
         "use strict";
 
-        let entities = this.filter((e) => e.has(lock));
-        let e = entities.next();
+        let filter = (typeof lock_or_filter === 'function') ? lock_or_filter : (e) => e.has(lock_or_filter),
+            entities = this.filter(filter),
+            e = entities.next();
 
         while (!e.done) {
             if (thisArg) {
