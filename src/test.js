@@ -40,8 +40,8 @@ window.g = new Game({
     phases: ['collision', 'physics'],
     systems: {
         physics: [
-            new PhysicsSystem("physics", ["position", "movable"]),
-            new CollisionSystem("collision", ["position", "collidable"])
+            new PhysicsSystem(),
+            new CollisionSystem()
         ]
     }
 })

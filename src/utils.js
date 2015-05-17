@@ -1,5 +1,11 @@
 /**
  * Created by faide on 2015-04-01.
+ *
+ *
+ *
+ * FUTURE: ES7 introduces SIMD operations.  This may improve performance of vector/matrix operations.
+ *  A polyfill exists for SIMD here: https://github.com/johnmccutchan/ecmascript_simd
+ *  During optimization passes we can future-proof the math by SIMD-ing
  */
 
 let {sqrt, cos, sin, tan, PI: pi} = Math;

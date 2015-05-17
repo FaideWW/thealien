@@ -6,10 +6,12 @@ import GameSystem from './system.js';
 import {Component} from './component.js';
 import {vMath} from './utils.js';
 
+let uid = 0;
+
 export default class CollisionSystem extends GameSystem {
-    constructor(s_id, components) {
+    constructor(s_id = `collision${uid++}`) {
         "use strict";
-        super(s_id, components);
+        super(s_id, ["position", "collidable"]);
     }
 
     update(scene, dt) {

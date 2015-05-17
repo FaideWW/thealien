@@ -37,4 +37,7 @@ export default class GameSystem {
         "use strict";
         return this.__state;
     }
+
+    // abstract
+    update(scene, dt) {}
 }

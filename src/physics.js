@@ -6,10 +6,12 @@ import {vMath} from './utils.js';
 import GameSystem from './system.js';
 import {Component} from './component.js';
 
+let uid = 0;
+
 class PhysicsSystem extends GameSystem{
-    constructor(s_id, components) {
+    constructor(s_id = `physics${uid++}`) {
         "use strict";
-        super(s_id, components);
+        super(s_id, ["position", "movable"]);
     }
 
     update(scene, dt) {
