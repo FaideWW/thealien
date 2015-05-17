@@ -15,8 +15,9 @@ g = new Game({
         // script game content here
 
     });
-
  */
+
+import {Texture} from './texture.js';
 
 export default {
 
@@ -29,11 +30,12 @@ export default {
         return result;
     },
 
-    __objectifyMap(map) {
+    __createTextures(map) {
         "use strict";
         let result = {};
-        map.forEach((pair) => {
-            result[pair[0]] = pair[1];
+        map.forEach((img) => {
+            let [name, data] = img;
+            result[name] = new Texture(data, data.width, data.height);
         });
 
         return result;
@@ -55,7 +57,7 @@ export default {
         let image_map = this.__mapifyObject(images);
 
         return Promise.all(image_map.map(this.__loadImage))
-        .then((i) => this.__objectifyMap(i))
+        .then((i) => this.__createTextures(i))
         .catch((error) => {throw new Error(`Error loading image: ${error}`)});
 
     }

@@ -48,8 +48,8 @@ export default class {
         this.__last_time = 0;
 
         ResourceManager.loadResources(images)
-            .then((img) => {
-                this.__resources_loaded.call(this, img);
+            .then((textures) => {
+                this.__resources_loaded.call(this, textures);
                 this.__loaded = true;
             })
             .catch((error) => console.error(error));

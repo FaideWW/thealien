@@ -51,11 +51,12 @@ window.g = new Game({
         ]
     }
 })
-    .ready(function (images) { // don't use arrow here, we need to preserve execution context
+    .ready(function (textures) { // don't use arrow here, we need to preserve execution context
         "use strict";
 
+        debugger;
         // solid rects
-        let {man, map} = images;
+        let {man, map} = textures;
         let {vec2, vec3} = vMath;
 
         entities.push(new Entity("whiterect", [
@@ -72,7 +73,6 @@ window.g = new Game({
 
         entities.push(new Entity("man", [
             new RenderableTexturedRect("texrect", 32, 32, undefined, man,
-                man.width,        man.height,
                 vec2(0, 0), vec2(man.width, man.height)),
             new Position("pos3", "position",vec3(250, 250)),
             new Movable("mov1", "movable", vec2(20, 0)),
@@ -178,8 +178,6 @@ window.g = new Game({
         this.render.draw(this.activeScene.map.tiles[4], vMath.vec2(265, 265));
 
         this.render.draw(this.activeScene.map.tiles[1], vMath.vec2(400, 200), {rotate: Math.PI / 4});
-
-        console.log(entities[2].get(state).state_name);
 
         return persist;
     })

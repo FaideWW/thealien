@@ -276,7 +276,7 @@ export default class WebGLRenderer {
 
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.initialized === false) {
-            renderable.gl_texture = this._initTexture(renderable.tex_data);
+            renderable.gl_texture = this._initTexture(renderable.texture.img);
             renderable.initialized = true;
         }
 
