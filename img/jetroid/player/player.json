@@ -323,7 +323,6 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.1-beta3",
-  "image": "C:\Users\faide\dev\thealien\img\jetroid\player\sheet.png",
   "format": "RGBA8888",
   "size": { "w": 128, "h": 128 },
   "scale": "1"

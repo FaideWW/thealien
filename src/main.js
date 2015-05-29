@@ -36,9 +36,20 @@ window.g = new Game({
         height: canvas.clientHeight
     },
     shaders: shaders,
-    images: {
-        man: 'img/man.png',
-        map: 'img/map.png'
+    resources: {
+        man: {
+            type: 'image',
+            path: 'img/man.png'
+        },
+        test_sheet: {
+            type: 'json',
+            path: 'img/jetroid/player/player.json'
+        },
+        map: {
+            type: 'image',
+            path: 'img/map.png'
+        }
+
     },
     sprites: {
         map: {
@@ -70,8 +81,10 @@ window.g = new Game({
         ]
     }
 })
-    .ready(function (textures, sprites) { // don't use arrow here, we need to preserve execution context
+    .ready(function (resources, sprites) { // don't use arrow here, we need to preserve execution context
         "use strict";
+
+        console.log(resources.json);
 
         // solid rects
         let {vec2, vec3} = vMath;

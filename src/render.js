@@ -36,7 +36,6 @@ export default class WebGLRenderer {
         el.style.height = `${res.height}px`;
 
         let device_pixel_ratio = window.devicePixelRatio || 1;
-        console.log(device_pixel_ratio);
 
         el.width  = res.width  * device_pixel_ratio;
         el.height = res.height * device_pixel_ratio;

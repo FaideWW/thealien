@@ -25,18 +25,22 @@ export default class {
      * For now, only the html5 platform is supported (canvas, web audio, browser-based events)
      *
      *
-     * @param {} options
+     * @param canvasSelector
+     * @param shaders
+     * @param resolution
+     * @param resources
+     * @param sprites
+     * @param render
+     * @param audio
+     * @param event
+     * @param phases
+     * @param systems
      */
-    constructor(options) {
+    constructor({canvasSelector, shaders, resolution, resources, sprites, render, audio, event, phases, systems}) {
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
-        let {canvasSelector: selector, shaders, resolution,
-                images, sprites,
-                render, audio, event,
-                phases, systems = {}} = options;
-
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
-        this.canvas = getCanvasEl(selector);
+        this.canvas = getCanvasEl(canvasSelector);
 
         this.__loaded = false;
         this.__resources_loaded = () => {};
@@ -48,11 +52,11 @@ export default class {
         this.activeScene = null;
         this.__last_time = 0;
 
-        ResourceManager.loadResources(images)
-            .then((textures) => {
+        ResourceManager.loadResources(resources)
+            .then((resources) => {
 
-                console.log(textures);
-                this.__resources_loaded.call(this, textures, SpriteLoader(textures, sprites));
+                console.log(resources);
+                this.__resources_loaded.call(this, resources, SpriteLoader(resources.image, sprites));
                 this.__loaded = true;
             })
             .catch((error) => console.error(error));
