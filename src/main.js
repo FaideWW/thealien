@@ -48,8 +48,11 @@ window.g = new Game({
         map: {
             type: 'image',
             path: 'img/map.png'
+        },
+        jetroid: {
+            type: 'image',
+            path: 'img/jetroid/player/sheet.png'
         }
-
     },
     sprites: {
         map: {
@@ -65,6 +68,12 @@ window.g = new Game({
             texture: 'man',
             sheet: {
                 idle0: { x: 0, y: 0, w: 64, h: 64 }
+            }
+        },
+        jetroid: {
+            texture: 'jetroid',
+            sheet: {
+                idle0: { x: 0, y: 0, w: 16, h: 16 }
             }
         }
     },
@@ -104,7 +113,7 @@ window.g = new Game({
         console.log(sprites.man.idle0);
 
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("texrect", 32, 32, sprites.man.idle0),
+            new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.idle0),
             new Position("pos3", "position",vec3(250, 250)),
             new Movable("mov1", "movable", vec2(20, 0)),
             new IdleState()

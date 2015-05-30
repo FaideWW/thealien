@@ -1,330 +1,250 @@
-{ "frames": {
-   "sheet 0.ase": {
+{
+  "idle0": {
     "frame": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 1.ase": {
+  },
+  "idle1": {
     "frame": { "x": 16, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 2.ase": {
+  },
+  "idle2": {
     "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 3.ase": {
+  },
+  "idle3": {
     "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 4.ase": {
+  },
+  "idle4": {
     "frame": { "x": 64, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 5.ase": {
+  },
+  "idle5": {
     "frame": { "x": 80, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 6.ase": {
+  },
+  "idle6": {
     "frame": { "x": 96, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 7.ase": {
+  },
+  "idle7": {
     "frame": { "x": 112, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 8.ase": {
+  },
+  "idle8": {
     "frame": { "x": 0, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 9.ase": {
+  },
+  "idle9": {
     "frame": { "x": 16, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 10.ase": {
+  },
+  "walk0": {
     "frame": { "x": 32, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 11.ase": {
+  },
+  "walk1": {
     "frame": { "x": 48, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 12.ase": {
+  },
+  "walk2": {
     "frame": { "x": 64, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 13.ase": {
+  },
+  "walk3": {
     "frame": { "x": 80, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 14.ase": {
+  },
+  "walk4": {
     "frame": { "x": 96, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 15.ase": {
+  },
+  "walk5": {
     "frame": { "x": 112, "y": 16, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 16.ase": {
+  },
+  "walk6": {
     "frame": { "x": 0, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 17.ase": {
+  },
+  "walk7": {
     "frame": { "x": 16, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 18.ase": {
-    "frame": { "x": 32, "y": 32, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 19.ase": {
-    "frame": { "x": 48, "y": 32, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 20.ase": {
+  },
+  "jump0": {
     "frame": { "x": 64, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 21.ase": {
+  },
+  "jump1": {
     "frame": { "x": 80, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 22.ase": {
+  },
+  "jump2": {
     "frame": { "x": 96, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 23.ase": {
+  },
+  "jump3": {
     "frame": { "x": 112, "y": 32, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 24.ase": {
+  },
+  "jump4": {
     "frame": { "x": 0, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 25.ase": {
+  },
+  "fall0": {
     "frame": { "x": 16, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 26.ase": {
+  },
+  "fall1": {
     "frame": { "x": 32, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 27.ase": {
+  },
+  "fall2": {
     "frame": { "x": 48, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 28.ase": {
+  },
+  "fall3": {
     "frame": { "x": 64, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 29.ase": {
-    "frame": { "x": 80, "y": 48, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 30.ase": {
+  },
+  "fly0": {
     "frame": { "x": 96, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 31.ase": {
+  },
+  "fly1": {
     "frame": { "x": 112, "y": 48, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 32.ase": {
+  },
+  "fly2": {
     "frame": { "x": 0, "y": 64, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 33.ase": {
+  },
+  "nofuel": {
     "frame": { "x": 16, "y": 64, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
-   },
-   "sheet 34.ase": {
-    "frame": { "x": 32, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 35.ase": {
-    "frame": { "x": 48, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 36.ase": {
-    "frame": { "x": 64, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 37.ase": {
-    "frame": { "x": 80, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 38.ase": {
-    "frame": { "x": 96, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   },
-   "sheet 39.ase": {
-    "frame": { "x": 112, "y": 64, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 100
-   }
- },
- "meta": {
-  "app": "http://www.aseprite.org/",
-  "version": "1.1-beta3",
-  "format": "RGBA8888",
-  "size": { "w": 128, "h": 128 },
-  "scale": "1"
- }
+  }
 }

@@ -138,6 +138,7 @@ export default class WebGLRenderer {
 
     _initTexture(image) {
 
+        // cache any already loaded textures
         if (this._textures[image.src]) return this._textures[image.src];
 
         let gl = this.ctx;
@@ -284,8 +285,6 @@ export default class WebGLRenderer {
         if (renderable.initialized === false) {
             renderable.gl_texture = this._initTexture(renderable.sprite.texture.img);
             renderable.initialized = true;
-
-            console.log(this._textures);
         }
 
         let gl = this.ctx,

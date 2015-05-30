@@ -22,8 +22,14 @@ function SpriteLoader (textures, sprite_map) {
             for (let r in sprite.sheet) {
                 if (sprite.sheet.hasOwnProperty(r)) {
                     let texture = textures[sprite.texture];
-                    let {x, y, w, h} = sprite.sheet[r];
-                    sprites[s][r] = new TextureRegion(texture, x, y, w, h);
+
+                    // region data will either be directly accessed, or from a series of properties
+                    let frame = sprite.sheet[r];
+
+                    if (frame.frame) {
+                        frame = frame.frame;
+                    }
+                    sprites[s][r] = new TextureRegion(texture, frame.x, frame.y, frame.w, frame.h);
                 }
             }
         }
