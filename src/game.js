@@ -1,7 +1,6 @@
 /**
  * Created by faide on 15-03-30.
  */
-'use strict';
 
 import Entity from "./entity.js";
 import WebGLRenderer from "./render.js";
@@ -36,6 +35,7 @@ export default class {
      * @param systems
      */
     constructor({canvasSelector, shaders, resolution, resources, sprites, render, audio, event, phases, systems}) {
+        'use strict';
         let getCanvasEl = (selector = "") => document.querySelector(selector);
 
         // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
@@ -87,37 +87,73 @@ export default class {
     }
 
     get scenes() {
+        'use strict';
         return this.__scenes;
     }
 
     get input() {
+        'use strict';
         return this.__input;
     }
 
-    // =====================
-    // Construction chaining
-    // =====================
+    // ==============================
+    //  Declaration chaining methods
+    // =============================
 
     resource(resources) {
-        this.__pipeline = this.__pipeline.then(() => { return ResourceManager.loadResources(resources); })
+        'use strict';
+        this.__pipeline = this.__pipeline
+            .then(() => { return ResourceManager.loadResources(resources); })
             .then((resources) => {
                 this.__loaded = true;
                 return resources;
             })
-            .catch((error) => console.error(error));
+            .catch((error) => console.error(`Error loading resource: ${error}`));
 
         return this;
     }
 
     ready(callback) {
-        // this is run when the ResourceManager has finished prefetching
-        this.__pipeline = this.__pipeline.then(callback.bind(this))
+        'use strict';
+        this.__pipeline = this.__pipeline
+            .then(callback.bind(this))
             .catch((error) => { console.error(error) });
+
+        // final link in the pipeline chain; initialize systems, and do other internal processing/error checking
+
         return this;
     }
 
+    /**
+     * general 'then' extension for injecting extra steps into the pipeline
+     *
+     * NOTE: does no error handling.  If you want to catch errors, use .catch()
+     */
+    then(callback) {
+        "use strict";
+        this.__pipeline = this.__pipeline
+            .then(callback.bind(this));
+        return this;
+    }
+
+    /**
+     * Counterpart to then().  Handles uncaught errors thrown/rejections created by the pipeline chain
+     */
+    catch(callback) {
+        "use strict";
+        this.__pipeline = this.__pipeline
+            .catch(callback.bind(this));
+
+        return this;
+    }
+
+    // ========================
+    //  Private loop functions
+    // ========================
+
     // update systems
     __updateSystems(dt) {
+        'use strict';
 
         this.__input.process();
 
@@ -137,6 +173,7 @@ export default class {
     }
 
     __tick(timestamp) {
+        'use strict';
 
         if (this.__last_time === 0) {
             this.__last_time = timestamp;
@@ -153,29 +190,35 @@ export default class {
     }
 
     step(callback) {
+        'use strict';
         this.__user_defined_step = callback.bind(this);
         return this;
     }
 
     run() {
+        'use strict';
         console.log('run');
         this.__tick(0);
         return this;
     }
 
     stop() {
+        'use strict';
         cRAF(this.__raf_id);
         return this;
     }
 
-
-    // ----- scenes
+    // ==================
+    //  Scene Management
+    // ==================
 
     addScene(scene) {
+        'use strict';
         this.__scenes[scene.id] = scene;
     }
 
     removeScene(scene_or_id) {
+        'use strict';
         if (this.__scenes[scene_or_id]) {
             delete this.__scenes[scene_or_id];
         } else if (this.__scenes[scene_or_id.id]) {
@@ -184,6 +227,7 @@ export default class {
     }
 
     loadScene(scene_or_id) {
+        'use strict';
         if (this.__scenes[scene_or_id]) {
             this.activeScene = this.__scenes[scene_or_id];
         } else if (this.__scenes[scene_or_id.id]) {
@@ -191,12 +235,19 @@ export default class {
         }
     }
 
+
+    // ==============================
+    //  Systems and phase management
+    // ==============================
+
     addPhase(phase_id, index) {
+        'use strict';
         this.__phaseorder.splice(index, 0, phase_id);
         this.__phases[phase_id] = [];
     }
 
     addSystem(system, phase_id) {
+        'use strict';
         if (!this.__phases[phase_id]) {
 
             // don't auto-add phases; these need to be explicit

@@ -16,7 +16,7 @@ import {IdleState, IdleStateSystem, MovingDownStateSystem, MovingUpStateSystem} 
 import CollisionSystem from './collision.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
-import {SpriteLoader} from "./texture.js";
+import SpriteLoader from "./sprite.js";
 
 let canvas = document.querySelector("#screen");
 
@@ -68,9 +68,11 @@ window.g = new Game({
             path: 'img/jetroid/player/sheet.png'
         }
     })
-    .ready(function (resources) { // don't use arrow here, we need to preserve execution context
+
+    .then(function (resources) {
         "use strict";
 
+        // generate sprites and shitsprite_data = {
         let sprite_data = {
                 map: {
                     texture: 'map',
@@ -93,8 +95,22 @@ window.g = new Game({
                         idle0: { x: 0, y: 0, w: 16, h: 16 }
                     }
                 }
-            },
-            sprites = SpriteLoader(resources.image, sprite_data);
+            };
+        resources.sprites = SpriteLoader(resources.image, sprite_data);
+
+        console.log('pipelined then');
+        console.log(resources);
+        return resources;
+    })
+    .catch(function (error) {
+        "use strict";
+        console.error(`error: ${error}`);
+    })
+
+    .ready(function (resources) { // don't use arrow here, we need to preserve execution context
+        "use strict";
+
+        let sprites = resources.sprites;
 
         // solid rects
         let {vec2, vec3} = vMath;

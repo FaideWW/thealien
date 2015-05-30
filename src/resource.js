@@ -116,8 +116,7 @@ export default {
 
         return Promise
             .all(file_map.map(this.__load.bind(this)))
-            .then(this.__process.bind(this))
-            .catch((error) => {throw new Error(`Error loading resource: ${error}`)});
+            .then(this.__process.bind(this));
 
     }
 }
