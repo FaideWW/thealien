@@ -7,7 +7,6 @@ import Entity from "./entity.js";
 import WebGLRenderer from "./render.js";
 import ResourceManager from "./resource.js";
 import Interface from "./interface.js";
-import {SpriteLoader} from "./texture.js";
 import {rAF, cRAF} from "./utils.js";
 
 /**
@@ -52,16 +51,9 @@ export default class {
         this.activeScene = null;
         this.__last_time = 0;
 
-        ResourceManager.loadResources(resources)
-            .then((resources) => {
-
-                console.log(resources);
-                this.__resources_loaded.call(this, resources, SpriteLoader(resources.image, sprites));
-                this.__loaded = true;
-            })
-            .catch((error) => console.error(error));
-
         this.__input = new Interface(window);
+
+
 
         if (!render) {
             this.render = render || new WebGLRenderer({
@@ -74,6 +66,7 @@ export default class {
             }
         }
 
+        this.__pipeline = Promise.resolve({});
 
         this.__phaseorder = phases || [];
         this.__phases = {};
@@ -101,6 +94,28 @@ export default class {
         return this.__input;
     }
 
+    // =====================
+    // Construction chaining
+    // =====================
+
+    resource(resources) {
+        this.__pipeline = this.__pipeline.then(() => { return ResourceManager.loadResources(resources); })
+            .then((resources) => {
+                this.__loaded = true;
+                return resources;
+            })
+            .catch((error) => console.error(error));
+
+        return this;
+    }
+
+    ready(callback) {
+        // this is run when the ResourceManager has finished prefetching
+        this.__pipeline = this.__pipeline.then(callback.bind(this))
+            .catch((error) => { console.error(error) });
+        return this;
+    }
+
     // update systems
     __updateSystems(dt) {
 
@@ -126,7 +141,6 @@ export default class {
         if (this.__last_time === 0) {
             this.__last_time = timestamp;
         }
-
         let dt = timestamp - this.__last_time;
 
         if (this.__loaded) {
@@ -138,22 +152,13 @@ export default class {
         this.__raf_id = rAF(this.__tick.bind(this));
     }
 
-    ready(callback) {
-        // this is run when the ResourceManager has finished prefetching
-        this.__resources_loaded = callback.bind(this);
-        return this;
-    }
-
-    /*
-     * TODO: refactor this to match the ready syntax above, so game.step(...) can be called from the main script
-     *     note: this means the actual step code will need to be pulled out and called from somewhere else
-     */
     step(callback) {
         this.__user_defined_step = callback.bind(this);
         return this;
     }
 
     run() {
+        console.log('run');
         this.__tick(0);
         return this;
     }

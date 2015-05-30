@@ -16,6 +16,7 @@ import {IdleState, IdleStateSystem, MovingDownStateSystem, MovingUpStateSystem} 
 import CollisionSystem from './collision.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
+import {SpriteLoader} from "./texture.js";
 
 let canvas = document.querySelector("#screen");
 
@@ -23,20 +24,33 @@ let entities = [];
 let s = null;
 
 let shaders = {
-    solid_rect: solid_rect_shaders,
-    textured_rect: textured_rect_shaders
-},
+        solid_rect: solid_rect_shaders,
+        textured_rect: textured_rect_shaders
+    },
     twidth = 64,
     theight = 64;
 
 window.g = new Game({
     canvasSelector: "#screen",
     resolution: {
-        width:  canvas.clientWidth,
+        width: canvas.clientWidth,
         height: canvas.clientHeight
     },
     shaders: shaders,
-    resources: {
+    phases: ['state', 'collision', 'physics'],
+    systems: {
+        state: [
+            new IdleStateSystem(),
+            new MovingDownStateSystem(),
+            new MovingUpStateSystem()
+        ],
+        physics: [
+            new PhysicsSystem(),
+            new CollisionSystem()
+        ]
+    }
+})
+    .resource({
         man: {
             type: 'image',
             path: 'img/man.png'
@@ -53,47 +67,34 @@ window.g = new Game({
             type: 'image',
             path: 'img/jetroid/player/sheet.png'
         }
-    },
-    sprites: {
-        map: {
-            texture: 'map',
-            sheet: {
-                1: { x: 0,  y: 0,  w: twidth, h: theight },
-                2: { x: 64, y: 0,  w: twidth, h: theight },
-                3: { x: 0,  y: 64, w: twidth, h: theight },
-                4: { x: 64, y: 64, w: twidth, h: theight }
-            }
-        },
-        man: {
-            texture: 'man',
-            sheet: {
-                idle0: { x: 0, y: 0, w: 64, h: 64 }
-            }
-        },
-        jetroid: {
-            texture: 'jetroid',
-            sheet: {
-                idle0: { x: 0, y: 0, w: 16, h: 16 }
-            }
-        }
-    },
-    phases: ['state', 'collision', 'physics'],
-    systems: {
-        state: [
-            new IdleStateSystem(),
-            new MovingDownStateSystem(),
-            new MovingUpStateSystem()
-        ],
-        physics: [
-            new PhysicsSystem(),
-            new CollisionSystem()
-        ]
-    }
-})
-    .ready(function (resources, sprites) { // don't use arrow here, we need to preserve execution context
+    })
+    .ready(function (resources) { // don't use arrow here, we need to preserve execution context
         "use strict";
 
-        console.log(resources.json);
+        let sprite_data = {
+                map: {
+                    texture: 'map',
+                    sheet: {
+                        1: { x: 0,  y: 0,  w: twidth, h: theight },
+                        2: { x: 64, y: 0,  w: twidth, h: theight },
+                        3: { x: 0,  y: 64, w: twidth, h: theight },
+                        4: { x: 64, y: 64, w: twidth, h: theight }
+                    }
+                },
+                man: {
+                    texture: 'man',
+                    sheet: {
+                        idle0: { x: 0, y: 0, w: 64, h: 64 }
+                    }
+                },
+                jetroid: {
+                    texture: 'jetroid',
+                    sheet: {
+                        idle0: { x: 0, y: 0, w: 16, h: 16 }
+                    }
+                }
+            },
+            sprites = SpriteLoader(resources.image, sprite_data);
 
         // solid rects
         let {vec2, vec3} = vMath;
@@ -110,8 +111,6 @@ window.g = new Game({
             new AABBCollidable("col2", 50, 50)
         ]));
 
-        console.log(sprites.man.idle0);
-
         entities.push(new Entity("man", [
             new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.idle0),
             new Position("pos3", "position",vec3(250, 250)),
@@ -121,10 +120,10 @@ window.g = new Game({
 
         let m = new Map(sprites.map,
             vec2(25, 25),
-        [
-            {
-                collidable: true,
-                data:  [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [
+                {
+                    collidable: true,
+                    data:  [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -136,8 +135,8 @@ window.g = new Game({
                         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-            }
-        ]);
+                }
+            ]);
 
         s = new Scene("scene1", entities, m);
         this.addScene(s);

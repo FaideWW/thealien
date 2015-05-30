@@ -32,6 +32,7 @@ export default {
 
     __process(resource_map) {
         "use strict";
+
         let result = {
                 json: {
 
@@ -111,7 +112,6 @@ export default {
 
     loadResources(files) {
         "use strict";
-
         let file_map = this.__mapifyObject(files);
 
         return Promise
