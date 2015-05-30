@@ -104,10 +104,6 @@ export default class {
         'use strict';
         this.__pipeline = this.__pipeline
             .then(() => { return ResourceManager.loadResources(resources); })
-            .then((resources) => {
-                this.__loaded = true;
-                return resources;
-            })
             .catch((error) => console.error(`Error loading resource: ${error}`));
 
         return this;
@@ -117,6 +113,9 @@ export default class {
         'use strict';
         this.__pipeline = this.__pipeline
             .then(callback.bind(this))
+            .then(() => {
+                this.__loaded = true;
+            })
             .catch((error) => { console.error(error) });
 
         // final link in the pipeline chain; initialize systems, and do other internal processing/error checking
