@@ -5,7 +5,7 @@
 import {Component} from './component.js';
 
 export default class AABBCollidable extends Component {
-    constructor(c_name, half_width = 0, half_height = 0) {
+    constructor(c_name, half_width = 0, half_height = 0, reaction = "slide") {
         "use strict";
         super(c_name, "collidable");
 
@@ -14,6 +14,8 @@ export default class AABBCollidable extends Component {
         this.hw = half_width;
         this.hh = half_height;
 
-        this.__collided = false;
+        this.reaction = reaction;
+
+        this.__collided = [];
     }
 }

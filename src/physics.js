@@ -31,6 +31,15 @@ class PhysicsSystem extends GameSystem{
             position.y += vy * interpolation;
 
 
+            // check for gravity
+
+            if (movable.mass && !movable.__onground) {
+                const gravity = vMath.vec2(0, 100);
+                movable.velocity.x += gravity.x * interpolation;
+                movable.velocity.y += gravity.y * interpolation;
+            }
+
+
         }, this.lock);
 
 
@@ -38,14 +47,15 @@ class PhysicsSystem extends GameSystem{
 }
 
 class Movable extends Component {
-    constructor(c_id, c_name, ...args) {
+    constructor(c_name, velocity = vMath.vec2(), acceleration = vMath.vec2(), mass = 0) {
         "use strict";
-        super(c_id, c_name);
-
-        let [velocity = vMath.vec2(), acceleration = vMath.vec2()] = args;
+        super(c_name, "movable");
 
         this.velocity = velocity;
         this.acceleration = acceleration;
+        this.mass = mass;
+
+        this.__onground = false;
     }
 }
 

@@ -41,11 +41,15 @@ function processMap(map_data) {
             let render_row    = [];
 
             for (let tile of row) {
-                collision_row.push((layer.collidable ? !!tile : false));
+                if (layer.collidable) {
+                    collision_row.push(!!tile);
+                }
                 render_row.push(tile);
             }
 
-            collision_layer.push(collision_row);
+            if (layer.collidable) {
+                collision_layer.push(collision_row);
+            }
             render_layer.push(render_row);
         }
 

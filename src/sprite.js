@@ -11,7 +11,7 @@ export default function SpriteLoader (textures, sprite_map) {
     for (let s in sprite_map) {
         if (sprite_map.hasOwnProperty(s)) {
             let sprite = sprite_map[s];
-            if (!textures[sprite.texture]) {
+            if (!sprite.texture) {
                 console.error(`Texture missing: ${sprite.texture}`);
                 return;
             }
@@ -20,7 +20,7 @@ export default function SpriteLoader (textures, sprite_map) {
 
             for (let r in sprite.sheet) {
                 if (sprite.sheet.hasOwnProperty(r)) {
-                    let texture = textures[sprite.texture];
+                    let texture = sprite.texture;
 
                     // region data will either be directly accessed, or from a series of properties
                     let frame = sprite.sheet[r];
