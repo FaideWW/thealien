@@ -12,6 +12,63 @@
  * sort draws with the following priority: same shader program -> same attributes -> same texture -> same uniforms
  *
  * http://stackoverflow.com/questions/15561871/the-fastest-way-to-batch-calls-in-webgl
+ *
+ *
+ * scratch notes
+ *
+ * currently:
+ *
+ *   each update():
+ *     gl.clear()
+ *
+ *     drawMap() * 1
+ *
+ *     drawTexturedRect() * num textured rects (1-10)
+ *
+ *  each drawMap():
+ *      drawTexturedRct() num map tiles (100+)
+ *
+ *
+ * each drawTexturedRect():    // associated batch level; these can be sorted as shader > texture > renderable
+ *     activeTexture           - texture
+ *     bindTexture             - texture
+ *     useProgram              - shader
+ *     getAttribLocation       - shader
+ *     enableVertexAttribArray - shader
+ *     getAttribLocation       - shader
+ *     enableVertexAttibArray  - shader
+ *     bindBuffer              - renderable
+ *     bufferData              - renderable
+ *     vertexAttribPointer     - renderable
+ *     bindBuffer              - renderable
+ *     bufferData              - renderable
+ *     vertexAttribPointer     - renderable
+ *     getUniformLocation      - shader
+ *     uniformMatrix4fv        - renderable
+ *     getUniformLocation      - shader
+ *     uniformMatrix4fv        - renderable
+ *     getUniformLocation      - shader
+ *     uniform1i               - texture (sampler)
+ *     getUniformLocation      - shader
+ *     uniform1f               - renderable
+ *
+ *  some notes about optimization:
+ *
+ *  if we can sort renderables based on textures, we can save a lot of graphics memory by calling glBindTexture() ONCE
+ *  per texture, instead of per renderable
+ *
+ *  if we can further sort texture batches based on shader used, we can save more by calling useProgram ONCE per shader
+ *   - in addition to useProgram, we only need to cal getUniformLocation once per uniform (for the texture shader, 4 uniforms)
+ *   - ^ furthermore the texture sampler uniform only needs to be bound once
+ *   - getAttribLocation is also called once per attribute (for texture shader, 2 attributes)
+ *
+ *  =========== greatest performance gain (theoretically)
+ *  if we can generate vertex and texture coordinate arrays for large batches of renderables (i.e. maps), we can:
+ *   - reduce number of buffers to 2 per batch
+ *   - call bindBuffer and bufferData twice per batch
+ *   - send shader attribute and uniform data once per batch
+ *   - drawArrays called once per batch
+ *
  */
 
 import {Component, Registry} from "./component.js";
