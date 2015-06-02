@@ -27,27 +27,37 @@ export default class CollisionResolutionSystem extends GameSystem {
                     position   = entity.get(fposition),
                     movable    = entity.get(fmovable),
 
+                    collidable_queue = collidable.__collided,
+
                     interpolation = dt / 1000,
                     interpolated_velocity = vMath.mul(movable.velocity, interpolation);
 
-                entity.get(fcollidable).__collided.forEach((manifold) => {
+                if (collidable_queue.length) console.log(collidable_queue);
+                while (collidable_queue.length) {
+                    let manifold = collidable.__collided.shift();
+                    if (manifold.type === 'swept') {
+                        position.x += interpolated_velocity.x * manifold.t;
+                        position.y += interpolated_velocity.y * manifold.t;
 
-                    position.x += interpolated_velocity.x * manifold.t;
-                    position.y += interpolated_velocity.y * manifold.t;
+                        // TODO: this is one of many different reactions to a collision.  write case for reflection too
 
-                    // TODO: this is one of many different reactions to a collision.  write case for reflection too
+                        let remainder = 1 - manifold.t,
+                            dot = vMath.dot(movable.velocity, vMath.vec2(manifold.xnormal, manifold.ynormal)) * remainder;
 
-                    let remainder = 1 - manifold.t,
-                        dot = vMath.dot(movable.velocity, vMath.vec2(manifold.normalx, manifold.normaly)) * remainder;
+                        movable.velocity.x = dot * manifold.ynormal;
+                        movable.velocity.y = dot * manifold.xnormal;
 
-                    movable.velocity.x = dot * manifold.normaly;
-                    movable.velocity.y = dot * manifold.normalx;
-
-                    // TODO: this is guarding against a very specific interaction.  make it more general
-                    if (manifold.normalx === 0 && manifold.normaly === -1) {
-                        movable.__onground = true;
+                        // TODO: this is guarding against a very specific interaction.  make it more general
+                        if (manifold.xnormal === 0 && manifold.ynormal === -1) {
+                            movable.__onground = true;
+                        }
+                    } else if (manifold.type === 'discrete') {
+                        position.x += manifold.xnormal * manifold.depth;
+                        position.y += manifold.ynormal * manifold.depth;
                     }
-                });
+                }
+
+                console.log('finalpos:', position);
 
             },
             (function (e) {

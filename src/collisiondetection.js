@@ -53,7 +53,7 @@ export default class CollisionDetectionSystem extends GameSystem {
                     collidable2.__collided = [];
 
                     if (collidable1.type === 'AABB' && collidable2.type === 'AABB') {
-                        if (CollisionDetectionSystem.__AABBTest(collidable1, collidable2, position1, position2)) {
+                        if (CollisionDetectionSystem.__AABBBooleanTest(collidable1, collidable2, position1, position2)) {
                             //collidable1.__collided.push(true);
                             //collidable2.__collided.push(true);
 
@@ -104,8 +104,7 @@ export default class CollisionDetectionSystem extends GameSystem {
 
 
 
-                            if (CollisionDetectionSystem.__AABBTest(sweptAABB.collidable, map_collidable, sweptAABB.position, tile_position)) {
-
+                            if (CollisionDetectionSystem.__AABBBooleanTest(sweptAABB.collidable, map_collidable, sweptAABB.position, tile_position)) {
 
                                 // swept collision test only works if the boxes are not already intersecting.
                                 // TODO: add a discrete intersection test after this to catch any edge cases
@@ -114,8 +113,12 @@ export default class CollisionDetectionSystem extends GameSystem {
 
                                 if (manifold.t > 0 && manifold.t < 1) {
                                     collidable.__collided.push(manifold);
+                                }
 
-
+                                // discrete fallback
+                                let depthTest = CollisionDetectionSystem.__AABBPenetrationTest(collidable, map_collidable, position, tile_position);
+                                if (depthTest.depth > 0) {
+                                    collidable.__collided.push(depthTest);
                                 }
                             }
                         }
@@ -161,8 +164,9 @@ export default class CollisionDetectionSystem extends GameSystem {
         "use strict";
 
         let manifold = {
-            normalx: 0,
-            normaly: 0,
+            type: 'swept',
+            xnormal: 0,
+            ynormal: 0,
             t      : 1
         };
 
@@ -213,28 +217,100 @@ export default class CollisionDetectionSystem extends GameSystem {
             manifold.t = entryTime;
             if (xEntry > yEntry) {
                 if (xInvEntry < 0) {
-                    manifold.normalx = 1;
-                    manifold.normaly = 0;
+                    manifold.xnormal = 1;
+                    manifold.ynormal = 0;
                 } else {
-                    manifold.normalx = -1;
-                    manifold.normaly = 0;
+                    manifold.xnormal = -1;
+                    manifold.ynormal = 0;
                 }
             } else {
                 if (yInvEntry < 0) {
-                    manifold.normalx = 0;
-                    manifold.normaly = 1;
+                    manifold.xnormal = 0;
+                    manifold.ynormal = 1;
                 } else {
-                    manifold.normalx = 0;
-                    manifold.normaly = -1;
+                    manifold.xnormal = 0;
+                    manifold.ynormal = -1;
                 }
             }
         }
 
         return manifold;
-
     }
 
-    static __AABBTest(c1, c2, p1, p2) {
+    static __AABBPenetrationTest(c1, c2, p1, p2) {
+        "use strict";
+        // determined using Minkowski sum
+
+        const minkowski_aabb_hw = c1.hw + c2.hw,
+            minkowski_aabb_hh = c1.hh + c2.hh,
+            offset = vMath.sub(p2, p1),
+            manifold = {
+                type: 'discrete',
+                xnormal: 0,
+                ynormal: 0,
+                depth: 0
+            };
+
+        let xdifference = Math.abs(minkowski_aabb_hw - offset.x),
+            ydifference = Math.abs(minkowski_aabb_hh - offset.y);
+
+        //console.log(xdifference);
+        //console.log(ydifference);
+
+        if (offset.x > 0 && offset.x < minkowski_aabb_hw) {
+            if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
+
+                if (xdifference < ydifference) {
+                    manifold.xnormal = -1;
+                    manifold.ynormal = 0;
+                    manifold.depth = xdifference;
+                } else {
+                    manifold.xnormal = 0;
+                    manifold.ynormal = -1;
+                    manifold.depth = ydifference;
+                }
+            } else if (offset.y < 0 && offset.y > minkowski_aabb_hh) {
+
+                if (xdifference < ydifference) {
+                    manifold.xnormal = -1;
+                    manifold.ynormal = 0;
+                    manifold.depth = xdifference;
+                } else {
+                    manifold.xnormal = 0;
+                    manifold.ynormal = 1;
+                    manifold.depth = ydifference;
+                }
+            }
+        } else if (offset.x < 0 && offset.x > minkowski_aabb_hw) {
+
+            if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
+
+                if (xdifference < ydifference) {
+                    manifold.xnormal = 1;
+                    manifold.ynormal = 0;
+                    manifold.depth = xdifference;
+                } else {
+                    manifold.xnormal = 0;
+                    manifold.ynormal = -1;
+                    manifold.depth = ydifference;
+                }
+            } else if (offset.y < 0 && offset.y > minkowski_aabb_hh) {
+
+                if (xdifference < ydifference) {
+                    manifold.xnormal = 1;
+                    manifold.ynormal = 0;
+                    manifold.depth = xdifference;
+                } else {
+                    manifold.xnormal = 0;
+                    manifold.ynormal = 1;
+                    manifold.depth = ydifference;
+                }
+            }
+        }
+        return manifold;
+    }
+
+    static __AABBBooleanTest(c1, c2, p1, p2) {
         "use strict";
         let bounds1 = {
             minx: p1.x - c1.hw,

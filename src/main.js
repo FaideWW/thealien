@@ -48,7 +48,7 @@ window.g = new Game({
         physics: [
             new CollisionDetectionSystem(),
             new CollisionResolutionSystem(),
-            new PhysicsSystem()
+            new PhysicsSystem(),
         ]
     }
 })
