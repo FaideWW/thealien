@@ -53,25 +53,25 @@ window.g = new Game({
     }
 })
     .resource({
-        jetroid_player_data: {
+        player_data: {
             type: 'json',
-            path: 'img/jetroid/player/player.json'
+            path: 'assets/json/player.json'
         },
-        jetroid_player_image: {
+        player_sheet: {
             type: 'image',
-            path: 'img/jetroid/player/sheet.png'
+            path: 'assets/img/player.png'
         },
-        jetroid_map_data: {
+        map_tile_data: {
             type: 'json',
-            path: 'img/jetroid/tiles/background.json'
+            path: 'assets/json/maptiles.json'
         },
-        jetroid_map_image: {
+        map_tile_sheet: {
             type: 'image',
-            path: 'img/jetroid/tiles/sheet.png'
+            path: 'assets/img/map.png'
         },
-        map: {
-            type: 'image',
-            path: 'img/map.png'
+        map_layout_data: {
+            type: 'json',
+            path: 'assets/json/map0.json'
         }
     })
 
@@ -81,12 +81,12 @@ window.g = new Game({
         // generate sprites and shitsprite_data = {
         let sprite_data = {
                 map: {
-                    texture: resources.image.jetroid_map_image,
-                    sheet: resources.json.jetroid_map_data
+                    texture: resources.image.map_tile_sheet,
+                    sheet: resources.json.map_tile_data
                 },
                 jetroid: {
-                    texture: resources.image.jetroid_player_image,
-                    sheet:   resources.json.jetroid_player_data
+                    texture: resources.image.player_sheet,
+                    sheet:   resources.json.player_data
                 }
             };
         resources.sprites = SpriteLoader(resources.image, sprite_data);
@@ -130,38 +130,8 @@ window.g = new Game({
 
         let m = new Map(sprites.map,
             vec2(25, 25),
-            [
-                {
-                    collidable: false,
-                    data:  [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23, 0],
-                            [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-                },
-                {
-                    collidable: true,
-                    data:  [[ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10,10,10, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [ 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
-                            [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]]
-                }
-            ]);
+            resources.json.map_layout_data.data
+            );
 
         s = new Scene("scene1", entities, m);
         this.addScene(s);
