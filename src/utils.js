@@ -341,18 +341,18 @@ let color = function (string_or_r = 0, g = 0, b = 0, a = 1) {
     };
 };
 
-let rAF = (window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame||
-        window.oRequestAnimationFrame ||
-        ((cb) => window.setTimeout(cb, 1000 / 60))
+let rAF = (window.requestAnimationFrame.bind(window) ||
+        window.mozRequestAnimationFrame.bind(window) ||
+        window.webkitRequestAnimationFrame.bind(window) ||
+        window.oRequestAnimationFrame.bind(window) ||
+        ((cb) => window.setTimeout.call(window, cb, 1000 / 60))
 );
 
-let cRAF = (window.cancelRequestAnimationFrame ||
-        window.mozCancelRequestAnimationFrame ||
-        window.webkitCancelRequestAnimationFrame ||
-        window.oCancelRequestAnimationFrame ||
-        ((id) => window.clearTimeout(id))
+let cRAF = (window.cancelAnimationFrame.bind(window) ||
+        window.mozCancelAnimationFrame.bind(window) ||
+        window.webkitCancelAnimationFrame.bind(window) ||
+        window.oCancelAnimationFrame.bind(window) ||
+        ((id) => window.clearTimeout.call(window, id))
 );
 
 

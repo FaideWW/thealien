@@ -7,6 +7,8 @@
 /**
  * solution: batch draw calls
  *
+ * TODO: use WebGL inspector to help reduce unnecessary calls
+ *
  * sort draws with the following priority: same shader program -> same attributes -> same texture -> same uniforms
  *
  * http://stackoverflow.com/questions/15561871/the-fastest-way-to-batch-calls-in-webgl
