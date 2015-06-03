@@ -60,6 +60,50 @@ function processMap(map_data) {
     return {collision, render};
 }
 
+/**
+ * Generates two array buffers:
+ *
+ *  a vertex position buffer
+ *  a texture coordinate buffer
+ *
+ * that can be read and drawn directly into webgl
+ *
+ *
+ * @param layer
+ * @param tiles
+ * @param tilewidth
+ * @param tileheight
+ */
+function generateLayerRenderArrays(layer, tiles, tilewidth, tileheight) {
+    "use strict";
+    const width = layer.length,
+        height  = layer[0].length;
+
+    // 12 = 2 floats per vert * 3 verts per tri * 2 tris per quad
+    const vertexPositionBuffer = new Float32Array(width * height * 12);
+    // 2 = 2 floats per tex coord * 1 tex coord per vert
+    const textureArray = new Float32Array(width * height * 2);
+    let arrayIndex = 0;
+
+    for (let y = 0; y < layer.length; y += 1) {
+        for (let x = 0; x < layer[y].length; x += 1) {
+            let tile = layer[y][x];
+            if (tile === 0) continue;
+
+            let renderable = map.tiles[tile];
+
+            if (renderable) {
+
+            }
+
+            arrayIndex += 12;
+        }
+
+
+    }
+
+}
+
 export default class Map {
     constructor(tile_sprites, tile_halfdims, map_data) {
         "use strict";
