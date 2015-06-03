@@ -134,7 +134,8 @@ export default class WebGLRenderer extends GameSystem {
             gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
         }
 
-        this._textures = {};
+        this._textures = [];
+        this._texture_dict = {};
 
         // one set of shaders per renderable type
         this._shaders = {};
@@ -174,13 +175,19 @@ export default class WebGLRenderer extends GameSystem {
     _initShaderProgram(args) {
         let gl = this.ctx;
 
-        let {fragment_source, vertex_source} = args;
+        let {fragment_source, vertex_source, buffers: bufferlist} = args;
 
         // attempt to compile shaders
         let fs = this._initShader(gl.FRAGMENT_SHADER, fragment_source);
         let vs = this._initShader(gl.VERTEX_SHADER, vertex_source);
 
         let program = gl.createProgram();
+
+        let buffers = {};
+
+        bufferlist.forEach((b) => {
+            buffers[b] = gl.createBuffer();
+        });
 
 
         this._shader_program = gl.createProgram();
@@ -192,29 +199,39 @@ export default class WebGLRenderer extends GameSystem {
             console.error(`Error linking shader program. `);
         }
 
-        return program;
+        return {
+            program,
+            buffers
+        };
 
     }
 
     _initTexture(image) {
 
         // cache any already loaded textures
-        if (this._textures[image.src]) return this._textures[image.src];
+        const texture_id = (this._texture_dict[image.src] !== void 0) ?
+            this._texture_dict[image.src] : this._textures.length;
 
-        let gl = this.ctx;
+        // if texture does not exist
+        if (texture_id === this._textures.length) {
+            this._texture_dict[image.src] = texture_id;
 
-        let texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            let gl = this.ctx;
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-        gl.generateMipmap(gl.TEXTURE_2D);
-        gl.bindTexture(gl.TEXTURE_2D, null);
+            let texture = gl.createTexture();
+            // maybe do activeTexture stuff here?
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-        this._textures[image.src] = texture;
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, null);
 
-        return texture;
+            this._textures[texture_id] = texture;
+        }
+
+        return texture_id;
     }
 
     get ctx() {
@@ -234,13 +251,12 @@ export default class WebGLRenderer extends GameSystem {
             this.drawMap(scene.map);
         }
 
-        scene.each((e) => {
-            let position = e.get(fposition);
-            let renderable = e.get(frenderable);
-
-            this.draw(renderable, position);
+        scene.all((e) => {
+            const sorted_entities = this._sortRenderablesByTexture(e);
+            this._drawRenderablesByTexture(sorted_entities);
 
         }, this.lock);
+
     }
 
     clear() {
@@ -301,13 +317,122 @@ export default class WebGLRenderer extends GameSystem {
 
     _sortRenderablesByTexture(entities) {
         const frenderable = Registry.getFlag('renderable');
-        let tex_array = {};
-        for (let e in entities) {
-            if (entities.hasOwnProperty(e)) {
-                const renderable = e.get(frenderable);
+        const tex_array = {};
+        for (let e_id in entities) {
+            if (entities.hasOwnProperty(e_id)) {
+                const e = entities[e_id],
+                    renderable = e.get(frenderable);
+
+                //if (renderable.type === 'solidrect') {
+                //    continue;
+                //}
+
+                if (renderable.initialized === false) {
+                    renderable.gl_texture_id = this._initTexture(renderable.sprite.texture.img);
+                    renderable.initialized = true;
+                }
+
+                let {gl_texture_id} = renderable;
+
+                if (gl_texture_id === void 0) {
+                    gl_texture_id = 'none';
+                }
+
+                tex_array[gl_texture_id] = tex_array[gl_texture_id] ||
+                    {
+                        texture_id: gl_texture_id,
+                        entities: []
+                    };
+
+                tex_array[gl_texture_id].entities.push(e);
+            }
+        }
+
+        return tex_array;
+    }
+
+    _drawRenderablesByTexture(texture_groups, transform = {}) {
+        // shader layer
+        const gl = this.ctx,
+            shader = this._shaders.textured_rect;
+
+        gl.useProgram(shader.program);
+
+        const vertex_position_attribute  = gl.getAttribLocation(shader.program, "aVertexPosition"),
+            texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord"),
+            texture_buffer               = shader.buffers.texture,
+            vertices_buffer              = shader.buffers.vertices,
+            pUniform                     = gl.getUniformLocation(shader.program, "uPMatrix"),
+            mvUniform                    = gl.getUniformLocation(shader.program, "uMVMatrix"),
+            texSampler                   = gl.getUniformLocation(shader.program, "uSampler"),
+            alpha                        = gl.getUniformLocation(shader.program, "uAlpha"),
+            frenderable                  = Registry.getFlag('renderable'),
+            fposition                    = Registry.getFlag('position'),
+
+            ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10),
+            pMatrix = new Float32Array(mMath.flatten(ortho_matrix));;
+
+        gl.enableVertexAttribArray(vertex_position_attribute);
+        gl.enableVertexAttribArray(texture_coordinate_attribute);
+
+        gl.activeTexture(gl.TEXTURE0);
+
+        for (let tex_group_id in texture_groups) {
+            if (texture_groups.hasOwnProperty(tex_group_id)) {
+                const tex_group = texture_groups[tex_group_id];
+                let {texture_id, entities} = tex_group;
+
+                // draw non-textured rects
+                if (texture_id === 'none') {
+                    entities.forEach((e) => {
+                        const renderable = e.get(frenderable),
+                              position   = e.get(fposition);
+
+                        this.draw(renderable, position);
+                    });
+                    continue;
+                }
+
+                gl.bindTexture(gl.TEXTURE_2D, this._textures[texture_id]);
+                gl.uniform1i(texSampler, 0);
+
+                entities.forEach((e) => {
+                    const position = e.get(fposition),
+                        renderable = e.get(frenderable),
+                        tex_coords = renderable.sprite.coords,
+                        verts      = renderable.verts;
+
+                    let transformation_matrix = mMath.compose()
+                        .translate(position);
+
+                    if (transform.rotate) {
+                        transformation_matrix.rotate(transform.rotate);
+                    }
+                    if (transform.scale) {
+                        transformation_matrix.scale(transform.scale);
+                    }
+
+                    let tMatrix = new Float32Array(mMath.flatten(transformation_matrix.done()));
+
+                    gl.uniformMatrix4fv(pUniform, false, pMatrix);
+                    gl.uniformMatrix4fv(mvUniform, false, tMatrix);
+                    gl.uniform1f(alpha, renderable.opacity);
+
+                    gl.bindBuffer(gl.ARRAY_BUFFER, texture_buffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, tex_coords, gl.STATIC_DRAW);
+                    gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 0, 0);
+
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+                    gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
+
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                })
 
             }
         }
+
+
     }
 
     // draw subroutines
@@ -320,31 +445,31 @@ export default class WebGLRenderer extends GameSystem {
             shader = this._shaders.solid_rect;
 
 
-        gl.useProgram(shader);
+        gl.useProgram(shader.program);
 
 
         // TODO: does this attach to the renderable?
-        let vertex_position_attribute = gl.getAttribLocation(shader, "aVertexPosition");
+        let vertex_position_attribute = gl.getAttribLocation(shader.program, "aVertexPosition");
         gl.enableVertexAttribArray(vertex_position_attribute);
-        let vertex_color_attribute = gl.getAttribLocation(shader, "aVertexColor");
+        let vertex_color_attribute = gl.getAttribLocation(shader.program, "aVertexColor");
         gl.enableVertexAttribArray(vertex_color_attribute);
 
 
-        let vertices_buffer = gl.createBuffer();
+        let vertices_buffer = shader.buffers.vertices;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
 
-        let color_buffer = gl.createBuffer();
+        let color_buffer = shader.buffers.color;
         gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, color, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex_color_attribute, 4, gl.FLOAT, false, 0, 0);
 
 
         // declare uniform variables
-        let pUniform = gl.getUniformLocation(shader, "uPMatrix");
+        let pUniform = gl.getUniformLocation(shader.program, "uPMatrix");
         gl.uniformMatrix4fv(pUniform, false, pMatrix);
-        let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
+        let mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, tMatrix);
 
 
@@ -354,59 +479,53 @@ export default class WebGLRenderer extends GameSystem {
 
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.initialized === false) {
-            renderable.gl_texture = this._initTexture(renderable.sprite.texture.img);
+            renderable.gl_texture_id = this._initTexture(renderable.sprite.texture.img);
             renderable.initialized = true;
         }
 
         let gl = this.ctx,
             shader = this._shaders.textured_rect;
-        let {gl_texture, verts} = renderable;
+        let {gl_texture_id, verts} = renderable;
         let tex_coords = renderable.sprite.coords;
-
-        if (!renderable.__shaderBuffers) {
-            renderable.__shaderBuffers = {
-                texture: gl.createBuffer(),
-                vertices: gl.createBuffer()
-            };
-        }
+        let gl_texture = this._textures[gl_texture_id];
 
         // activate the texture
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, gl_texture);
 
-        gl.useProgram(shader);
+        gl.useProgram(shader.program);
 
         let vertex_position_attribute,
             texture_coordinate_attribute;
 
         // TODO: does this attach to the renderable?
-        vertex_position_attribute = gl.getAttribLocation(shader, "aVertexPosition");
+        vertex_position_attribute = gl.getAttribLocation(shader.program, "aVertexPosition");
         gl.enableVertexAttribArray(vertex_position_attribute);
-        texture_coordinate_attribute = gl.getAttribLocation(shader, "aTextureCoord");
+        texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord");
         gl.enableVertexAttribArray(texture_coordinate_attribute);
 
-        let texture_buffer = renderable.__shaderBuffers.texture;
+        let texture_buffer = shader.buffers.texture;
         gl.bindBuffer(gl.ARRAY_BUFFER, texture_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, tex_coords, gl.STATIC_DRAW);
         gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 0, 0);
 
-        let vertices_buffer = renderable.__shaderBuffers.vertices;
+        let vertices_buffer = shader.buffers.vertices;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
 
         // declare uniform variables
 
-        let pUniform = gl.getUniformLocation(shader, "uPMatrix");
+        let pUniform = gl.getUniformLocation(shader.program, "uPMatrix");
         gl.uniformMatrix4fv(pUniform, false, pMatrix);
 
-        let mvUniform = gl.getUniformLocation(shader, "uMVMatrix");
+        let mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, tMatrix);
 
-        let texSampler = gl.getUniformLocation(shader, "uSampler");
+        let texSampler = gl.getUniformLocation(shader.program, "uSampler");
         gl.uniform1i(texSampler, 0);
 
-        let alpha = gl.getUniformLocation(shader, "uAlpha");
+        let alpha = gl.getUniformLocation(shader.program, "uAlpha");
         gl.uniform1f(alpha, renderable.opacity);
 
 

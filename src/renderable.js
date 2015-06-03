@@ -57,7 +57,7 @@ class RenderableTexturedRect extends Component {
         // tex_image should already be image data pre-loaded... check for tex_image.__loaded
 
         this.initialized = false;
-        this.gl_texture = null;
+        this.gl_texture_id = -1;
 
         this.sprite = tex_region;
 

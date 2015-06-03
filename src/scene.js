@@ -54,6 +54,17 @@ export default class Scene {
         delete this.__entities[e_id];
     }
 
+    all(cb, lock_or_filter, thisArg) {
+        "use strict";
+        let filter = (typeof lock_or_filter === 'function') ? lock_or_filter : (e) => e.has(lock_or_filter),
+            entities = this.entities.filter(filter);
+        if (thisArg) {
+            cb.call(thisArg, entities);
+        } else {
+            cb(entities);
+        }
+    }
+
     each(cb, lock_or_filter, thisArg) {
         "use strict";
 
