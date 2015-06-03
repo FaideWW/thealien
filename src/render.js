@@ -73,16 +73,17 @@
 
 import {Component, Registry} from "./component.js";
 import {vMath, mMath, color} from "./utils.js";
+import GameSystem from './system.js';
 let  {floor} = Math;
 
+let uid = 0;
 
-export default class WebGLRenderer {
-    constructor(opts) {
+export default class WebGLRenderer extends GameSystem {
+    constructor(s_id =`webglrenderer${uid++}`, opts = {}) {
+        super(s_id, ['renderable', 'position']);
         if (!(opts.el && opts.resolution)) {
             return;
         }
-
-        this.__lock = 0;
 
         let {el: el,
                 shaders: shader_programs,
@@ -148,7 +149,7 @@ export default class WebGLRenderer {
     }
 
     get lock() {
-        return this.__lock;
+        return this._lock;
     }
 
     _initShader(shader_type, shader_source) {
@@ -221,11 +222,11 @@ export default class WebGLRenderer {
     }
 
     update(scene, dt) {
-        let renderable = Registry.flags.renderable;
-        let position   = Registry.flags.position;
-        if (!this.__lock && renderable && position) {
-            this.__lock = renderable | position;
-        }
+        let frenderable = Registry.getFlag('renderable');
+        let fposition   = Registry.getFlag('position');
+        //if (!this.__lock && renderable && position) {
+        //    this.__lock = renderable | position;
+        //}
 
         this.clear();
 
@@ -234,10 +235,10 @@ export default class WebGLRenderer {
         }
 
         scene.each((e) => {
-            let e_pos = e.get(position);
-            let e_ren = e.get(renderable);
+            let position = e.get(fposition);
+            let renderable = e.get(frenderable);
 
-            this.draw(e_ren, e_pos);
+            this.draw(renderable, position);
 
         }, this.lock);
     }
@@ -296,6 +297,17 @@ export default class WebGLRenderer {
                 }
             }
         });
+    }
+
+    _sortRenderablesByTexture(entities) {
+        const frenderable = Registry.getFlag('renderable');
+        let tex_array = {};
+        for (let e in entities) {
+            if (entities.hasOwnProperty(e)) {
+                const renderable = e.get(frenderable);
+
+            }
+        }
     }
 
     // draw subroutines

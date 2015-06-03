@@ -56,7 +56,7 @@ export default class {
 
 
         if (!render) {
-            this.render = render || new WebGLRenderer({
+            this.render = render || new WebGLRenderer(undefined, {
                 el: this.canvas,
                 shaders: shaders,
                 resolution: resolution
