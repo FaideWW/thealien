@@ -351,6 +351,8 @@ export default class WebGLRenderer extends GameSystem {
         gl.uniform1f(alpha, 1.0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
+        gl.vertexAttribPointer(vertex_position_attribute,    3, gl.FLOAT, false, 20, 0); // 20 = 5 * sizeof(float)
+        gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 20, 12);// 12 = 3 * sizeof(float)
 
         map.buffers.forEach((layer) => {
 
@@ -358,8 +360,6 @@ export default class WebGLRenderer extends GameSystem {
 
             gl.bufferData(gl.ARRAY_BUFFER, vertex, gl.STATIC_DRAW);
             // vertex and texture data are interleaved (XYZ UV)
-            gl.vertexAttribPointer(vertex_position_attribute,    3, gl.FLOAT, false, 20, 0); // 20 = 5 * sizeof(float)
-            gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 20, 12);// 12 = 3 * sizeof(float)
 
             gl.drawArrays(gl.TRIANGLES, 0, vertex.length / 5);
 
@@ -520,7 +520,6 @@ export default class WebGLRenderer extends GameSystem {
         // declare uniform variables
         gl.uniformMatrix4fv(pUniform, false, pMatrix);
         gl.uniformMatrix4fv(mvUniform, false, tMatrix);
-
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

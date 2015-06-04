@@ -101,7 +101,7 @@ window.g = new Game({
         },
             ['vertices', 'color'],
             ['uPMatrix', 'uMVMatrix'],
-            ['aVertexPosition', 'aTextureCoord']
+            ['aVertexPosition', 'aVertexColor']
         );
         this.render.addShader('textured_rect', {
             fragment: resources.shader.texturedrect_frag_shader,
