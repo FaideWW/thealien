@@ -149,11 +149,13 @@ export default class WebGLRenderer extends GameSystem {
 
     }
 
-    addShader(shader_name, shader_sources, buffer_names) {
+    addShader(shader_name, shader_sources, buffer_names, uniforms, attributes) {
         this._shaders[shader_name] = this._initShaderProgram({
             fragment_source: shader_sources.fragment,
             vertex_source: shader_sources.vertex,
-            buffers: buffer_names
+            buffers: buffer_names,
+            uniforms: uniforms,
+            attributes: attributes
         });
     }
 
@@ -179,7 +181,7 @@ export default class WebGLRenderer extends GameSystem {
     _initShaderProgram(args) {
         let gl = this.ctx;
 
-        let {fragment_source, vertex_source, buffers: bufferlist} = args;
+        let {fragment_source, vertex_source, buffers: bufferlist, uniforms: uniformList, attributes: attribList} = args;
 
         // attempt to compile shaders
         let fs = this._initShader(gl.FRAGMENT_SHADER, fragment_source);
@@ -188,6 +190,8 @@ export default class WebGLRenderer extends GameSystem {
         let program = gl.createProgram();
 
         let buffers = {};
+        let uniforms = {},
+            attribs = {};
 
         bufferlist.forEach((b) => {
             buffers[b] = gl.createBuffer();
@@ -203,9 +207,21 @@ export default class WebGLRenderer extends GameSystem {
             console.error(`Error linking shader program. `);
         }
 
+        uniformList.forEach((u) => {
+            uniforms[u] = gl.getUniformLocation(program, u);
+        });
+
+        attribList.forEach((a) => {
+            attribs[a] = gl.getAttribLocation(program, a);
+        });
+
+
+
         return {
             program,
-            buffers
+            buffers,
+            uniforms,
+            attribs
         };
 
     }
@@ -309,14 +325,15 @@ export default class WebGLRenderer extends GameSystem {
 
         gl.useProgram(shader.program);
 
-        const vertex_position_attribute  = gl.getAttribLocation(shader.program, "aVertexPosition"),
-            texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord"),
-            texture_buffer               = shader.buffers.texture,
+        const vertex_position_attribute  = shader.attribs.aVertexPosition,
+            texture_coordinate_attribute = shader.attribs.aTextureCoord,
+            pUniform                     = shader.uniforms.uPMatrix,
+            mvUniform                    = shader.uniforms.uMVMatrix,
+            texSampler                   = shader.uniforms.uSampler,
+            alpha                        = shader.uniforms.uAlpha,
+
             vertices_buffer              = shader.buffers.vertices,
-            pUniform                     = gl.getUniformLocation(shader.program, "uPMatrix"),
-            mvUniform                    = gl.getUniformLocation(shader.program, "uMVMatrix"),
-            texSampler                   = gl.getUniformLocation(shader.program, "uSampler"),
-            alpha                        = gl.getUniformLocation(shader.program, "uAlpha"),
+            texture_buffer               = shader.buffers.texture,
 
             ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10),
             pMatrix = new Float32Array(mMath.flatten(ortho_matrix)),
@@ -392,14 +409,14 @@ export default class WebGLRenderer extends GameSystem {
 
         gl.useProgram(shader.program);
 
-        const vertex_position_attribute  = gl.getAttribLocation(shader.program, "aVertexPosition"),
-            texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord"),
+        const vertex_position_attribute  = shader.attribs.aVertexPosition,
+            texture_coordinate_attribute = shader.attribs.aTextureCoord,
             texture_buffer               = shader.buffers.texture,
             vertices_buffer              = shader.buffers.vertices,
-            pUniform                     = gl.getUniformLocation(shader.program, "uPMatrix"),
-            mvUniform                    = gl.getUniformLocation(shader.program, "uMVMatrix"),
-            texSampler                   = gl.getUniformLocation(shader.program, "uSampler"),
-            alpha                        = gl.getUniformLocation(shader.program, "uAlpha"),
+            pUniform                     = shader.uniforms.uPMatrix,
+            mvUniform                    = shader.uniforms.uMVMatrix,
+            texSampler                   = shader.uniforms.uSampler,
+            alpha                        = shader.uniforms.uAlpha,
             frenderable                  = Registry.getFlag('renderable'),
             fposition                    = Registry.getFlag('position'),
 
@@ -479,11 +496,13 @@ export default class WebGLRenderer extends GameSystem {
 
         gl.useProgram(shader.program);
 
+        const vertex_position_attribute = shader.attribs.aVertexPosition,
+            vertex_color_attribute      = shader.attribs.aVertexColor,
+            pUniform                    =  shader.uniforms.uPMatrix,
+            mvUniform                   = shader.uniforms.uMVMatrix;
 
         // TODO: does this attach to the renderable?
-        let vertex_position_attribute = gl.getAttribLocation(shader.program, "aVertexPosition");
         gl.enableVertexAttribArray(vertex_position_attribute);
-        let vertex_color_attribute = gl.getAttribLocation(shader.program, "aVertexColor");
         gl.enableVertexAttribArray(vertex_color_attribute);
 
 
@@ -499,9 +518,7 @@ export default class WebGLRenderer extends GameSystem {
 
 
         // declare uniform variables
-        let pUniform = gl.getUniformLocation(shader.program, "uPMatrix");
         gl.uniformMatrix4fv(pUniform, false, pMatrix);
-        let mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, tMatrix);
 
 
@@ -509,6 +526,7 @@ export default class WebGLRenderer extends GameSystem {
 
     }
 
+    // IF AT ALL POSSIBLE, DO NOT USE; EXTREMELY SLOW
     _drawTexturedRect(renderable, pMatrix, tMatrix) {
         if (renderable.initialized === false) {
             renderable.gl_texture_id = this._initTexture(renderable.sprite.texture.img);
@@ -527,13 +545,15 @@ export default class WebGLRenderer extends GameSystem {
 
         gl.useProgram(shader.program);
 
-        let vertex_position_attribute,
-            texture_coordinate_attribute;
+        const vertex_position_attribute  = shader.attribs.aVertexPosition,
+            texture_coordinate_attribute = shader.attribs.aTextureCoord,
+            pUniform                     = shader.uniforms.uPMatrix,
+            mvUniform                    = shader.uniforms.uMVMatrix,
+            texSampler                   = shader.uniforms.uSampler,
+            alpha                        = shader.uniforms.uAlpha;
 
         // TODO: does this attach to the renderable?
-        vertex_position_attribute = gl.getAttribLocation(shader.program, "aVertexPosition");
         gl.enableVertexAttribArray(vertex_position_attribute);
-        texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord");
         gl.enableVertexAttribArray(texture_coordinate_attribute);
 
         let texture_buffer = shader.buffers.texture;
@@ -546,18 +566,11 @@ export default class WebGLRenderer extends GameSystem {
         gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex_position_attribute, 3, gl.FLOAT, false, 0, 0);
 
-        // declare uniform variables
+        // send uniforms
 
-        let pUniform = gl.getUniformLocation(shader.program, "uPMatrix");
         gl.uniformMatrix4fv(pUniform, false, pMatrix);
-
-        let mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
         gl.uniformMatrix4fv(mvUniform, false, tMatrix);
-
-        let texSampler = gl.getUniformLocation(shader.program, "uSampler");
         gl.uniform1i(texSampler, 0);
-
-        let alpha = gl.getUniformLocation(shader.program, "uAlpha");
         gl.uniform1f(alpha, renderable.opacity);
 
 

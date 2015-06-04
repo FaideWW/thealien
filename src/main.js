@@ -98,11 +98,19 @@ window.g = new Game({
         this.render.addShader('solid_rect', {
             fragment: resources.shader.solidrect_frag_shader,
             vertex:   resources.shader.solidrect_vert_shader,
-        }, ['vertices', 'color']);
+        },
+            ['vertices', 'color'],
+            ['uPMatrix', 'uMVMatrix'],
+            ['aVertexPosition', 'aTextureCoord']
+        );
         this.render.addShader('textured_rect', {
             fragment: resources.shader.texturedrect_frag_shader,
             vertex:   resources.shader.texturedrect_vert_shader,
-        }, ['vertices', 'texture']);
+        },
+            ['vertices', 'texture'],
+            ['uPMatrix', 'uMVMatrix', 'uSampler', 'uAlpha'],
+            ['aVertexPosition', 'aTextureCoord']
+        );
 
         return resources;
     })
