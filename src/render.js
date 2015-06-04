@@ -149,8 +149,12 @@ export default class WebGLRenderer extends GameSystem {
 
     }
 
-    get lock() {
-        return this._lock;
+    addShader(shader_name, shader_sources, buffer_names) {
+        this._shaders[shader_name] = this._initShaderProgram({
+            fragment_source: shader_sources.fragment,
+            vertex_source: shader_sources.vertex,
+            buffers: buffer_names
+        });
     }
 
     _initShader(shader_type, shader_source) {

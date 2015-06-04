@@ -37,7 +37,7 @@ window.g = new Game({
         width: canvas.clientWidth,
         height: canvas.clientHeight
     },
-    shaders: shaders,
+    //shaders: shaders,
     phases: ['state', 'collision', 'physics'],
     systems: {
         state: [
@@ -72,7 +72,43 @@ window.g = new Game({
         map_layout_data: {
             type: 'json',
             path: 'assets/json/map0.json'
+        },
+        texturedrect_vert_shader: {
+            type: 'shader',
+            path: 'assets/shaders/texturedrect/vertex.glsl'
+        },
+        texturedrect_frag_shader: {
+            type: 'shader',
+            path: 'assets/shaders/texturedrect/fragment.glsl'
+        },
+        solidrect_vert_shader: {
+            type: 'shader',
+            path: 'assets/shaders/solidrect/vertex.glsl'
+        },
+        solidrect_frag_shader: {
+            type: 'shader',
+            path: 'assets/shaders/solidrect/fragment.glsl'
         }
+    })
+
+    // compile shaders
+    .then(function (resources) {
+        "use strict";
+
+        this.render.addShader('solid_rect', {
+            fragment: resources.shader.solidrect_frag_shader,
+            vertex:   resources.shader.solidrect_vert_shader,
+        }, ['vertices', 'color']);
+        this.render.addShader('textured_rect', {
+            fragment: resources.shader.texturedrect_frag_shader,
+            vertex:   resources.shader.texturedrect_vert_shader,
+        }, ['vertices', 'texture']);
+
+        return resources;
+    })
+    .catch(function (error) {
+        "use strict";
+        console.error(`Error compiling shaders: ${error}`)
     })
 
     .then(function (resources) {

@@ -33,22 +33,19 @@ export default {
     __process(resource_map) {
         "use strict";
 
-        let result = {
-                json: {
+        let result = {};
+        const processors = {
+            image: this.__createTexture,
+            json: this.__parseJSON,
+            shader: this.__loadShader
+        };
 
-                },
-                image: {
-
-                }
-            },
-            processors = {
-                image: this.__createTexture,
-                json : this.__parseJSON
-            };
         resource_map.forEach((resource) => {
             let [name, data, type] = resource;
+            result[type] = result[type] || {};
             result[type][name] = processors[type](data);
         });
+
         return result;
     },
 
@@ -60,6 +57,11 @@ export default {
     __parseJSON(string) {
         "use strict";
         return JSON.parse(string);
+    },
+
+    __loadShader(string) {
+        "use strict";
+        return string;
     },
 
     __createTextures(map) {
@@ -97,17 +99,36 @@ export default {
         })
     },
 
+    __loadShaderFile(file) {
+        "use strict";
+        let [name, path] = file;
+        return new Promise((resolve, reject) => {
+            let request = new XMLHttpRequest();
+            request.onload = () => resolve([name, request.response, 'shader']);
+            request.onerror = () => reject(path);
+
+            request.open("GET", path, true);
+            request.send();
+        })
+    },
+
+
     __load(resource) {
         "use strict";
         let [name, {path, type}] = resource;
-        if (type === 'image') {
-            return this.__loadImage([name, path]);
-        } else if (type === 'json') {
-            return this.__loadJSONFile([name, path]);
-        } else {
+
+        const loaders = {
+            image: this.__loadImage,
+            json: this.__loadJSONFile,
+            shader: this.__loadShaderFile
+        };
+
+        if (loaders[type] === void 0) {
             // TODO: type inference from file extension
             return Promise.reject(`${[name, path]} resource must have a type`);
         }
+
+        return loaders[type]([name, path]);
     },
 
     loadResources(files) {
