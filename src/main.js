@@ -166,7 +166,8 @@ window.g = new Game({
 
         let m = new Map(sprites.map,
             vec2(25, 25),
-            resources.json.map_layout_data.data
+            resources.json.map_layout_data.data,
+            resources.image.map_tile_sheet
             );
 
         s = new Scene("scene1", entities, m);

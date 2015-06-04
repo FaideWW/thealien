@@ -298,24 +298,54 @@ export default class WebGLRenderer extends GameSystem {
 
     // TODO: when camera functionality is added, maporigin will change to camera offset
     drawMap(map, map_origin = vMath.vec2()) {
-        let tileW = map.tilewidth;
-        let tileH = map.tileheight;
+        const gl = this.ctx,
+            shader = this._shaders.textured_rect;
 
-        map.render.forEach((layer) => {
 
-            for (let y = 0; y < layer.length; y += 1) {
-                for (let x = 0; x < layer[y].length; x += 1) {
-                    let tile = layer[y][x];
-                    if (tile === 0) continue;
+        if (map.texture.initialized === false) {
+            map.texture.gl_texture_id = this._initTexture(map.texture.source.img);
+            map.texture.initialized = true;
+        }
 
-                    let renderable = map.tiles[tile];
+        gl.useProgram(shader.program);
 
-                    if (renderable) {
-                        let tile_position = vMath.vec2(tileW * (x + 0.5), tileH * (y + 0.5));
-                        this.draw(renderable, vMath.add(map_origin, tile_position));
-                    }
-                }
-            }
+        const vertex_position_attribute  = gl.getAttribLocation(shader.program, "aVertexPosition"),
+            texture_coordinate_attribute = gl.getAttribLocation(shader.program, "aTextureCoord"),
+            texture_buffer               = shader.buffers.texture,
+            vertices_buffer              = shader.buffers.vertices,
+            pUniform                     = gl.getUniformLocation(shader.program, "uPMatrix"),
+            mvUniform                    = gl.getUniformLocation(shader.program, "uMVMatrix"),
+            texSampler                   = gl.getUniformLocation(shader.program, "uSampler"),
+            alpha                        = gl.getUniformLocation(shader.program, "uAlpha"),
+
+            ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10),
+            pMatrix = new Float32Array(mMath.flatten(ortho_matrix)),
+            tMatrix = new Float32Array(mMath.flatten(mMath.compose().done()));
+
+        gl.uniformMatrix4fv(pUniform, false, pMatrix);
+        gl.uniformMatrix4fv(mvUniform, false, tMatrix);
+
+        gl.enableVertexAttribArray(vertex_position_attribute);
+        gl.enableVertexAttribArray(texture_coordinate_attribute);
+
+
+        gl.bindTexture(gl.TEXTURE_2D, this._textures[map.texture.gl_texture_id]);
+        gl.uniform1i(texSampler, 0);
+        gl.uniform1f(alpha, 1.0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
+
+        map.buffers.forEach((layer) => {
+
+            const {vertex} = layer;
+
+            gl.bufferData(gl.ARRAY_BUFFER, vertex, gl.STATIC_DRAW);
+            // vertex and texture data are interleaved (XYZ UV)
+            gl.vertexAttribPointer(vertex_position_attribute,    3, gl.FLOAT, false, 20, 0); // 20 = 5 * sizeof(float)
+            gl.vertexAttribPointer(texture_coordinate_attribute, 2, gl.FLOAT, false, 20, 12);// 12 = 3 * sizeof(float)
+
+            gl.drawArrays(gl.TRIANGLES, 0, vertex.length / 5);
+
         });
     }
 
@@ -378,8 +408,7 @@ export default class WebGLRenderer extends GameSystem {
 
         gl.enableVertexAttribArray(vertex_position_attribute);
         gl.enableVertexAttribArray(texture_coordinate_attribute);
-
-        gl.activeTexture(gl.TEXTURE0);
+        gl.uniformMatrix4fv(pUniform, false, pMatrix);
 
         for (let tex_group_id in texture_groups) {
             if (texture_groups.hasOwnProperty(tex_group_id)) {
@@ -418,7 +447,6 @@ export default class WebGLRenderer extends GameSystem {
 
                     let tMatrix = new Float32Array(mMath.flatten(transformation_matrix.done()));
 
-                    gl.uniformMatrix4fv(pUniform, false, pMatrix);
                     gl.uniformMatrix4fv(mvUniform, false, tMatrix);
                     gl.uniform1f(alpha, renderable.opacity);
 
