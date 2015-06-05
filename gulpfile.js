@@ -8,6 +8,7 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat'),
     newer = require('gulp-newer'),
+    del = require('del'),
 
 
     path = {
@@ -26,6 +27,10 @@ gulp.task('babel', function () {
         .pipe(babel({modules: 'amd'}))
         .pipe(sourcemaps.write("."))
         .pipe(gulp.dest(path.dist.js));
+});
+
+gulp.task('clean', function(cb) {
+    return del(['dist'], cb);
 });
 
 //gulp.task('babelshort', function () {
