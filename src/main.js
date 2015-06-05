@@ -18,6 +18,7 @@ import CollisionResolutionSystem from './collisionresolution.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
 import SpriteLoader from "./sprite.js";
+import {Animatable, AnimationSystem} from "./animation.js";
 
 let canvas = document.querySelector("#screen");
 
@@ -38,7 +39,7 @@ window.g = new Game({
         height: canvas.clientHeight
     },
     //shaders: shaders,
-    phases: ['state', 'collision', 'physics'],
+    phases: ['state', 'collision', 'physics', 'draw'],
     systems: {
         state: [
             new IdleStateSystem(),
@@ -48,7 +49,10 @@ window.g = new Game({
         physics: [
             new CollisionDetectionSystem(),
             new CollisionResolutionSystem(),
-            new PhysicsSystem(),
+            new PhysicsSystem()
+        ],
+        draw: [
+            new AnimationSystem()
         ]
     }
 })
@@ -97,7 +101,7 @@ window.g = new Game({
 
         this.render.addShader('solid_rect', {
             fragment: resources.shader.solidrect_frag_shader,
-            vertex:   resources.shader.solidrect_vert_shader,
+            vertex:   resources.shader.solidrect_vert_shader
         },
             ['vertices', 'color'],
             ['uPMatrix', 'uMVMatrix'],
@@ -105,7 +109,7 @@ window.g = new Game({
         );
         this.render.addShader('textured_rect', {
             fragment: resources.shader.texturedrect_frag_shader,
-            vertex:   resources.shader.texturedrect_vert_shader,
+            vertex:   resources.shader.texturedrect_vert_shader
         },
             ['vertices', 'texture'],
             ['uPMatrix', 'uMVMatrix', 'uSampler', 'uAlpha'],
@@ -157,21 +161,33 @@ window.g = new Game({
             }
         }
 
-        animations.idle = [
-            renderables.idle0,
-            renderables.idle1,
-            renderables.idle2,
-            renderables.idle3,
-            renderables.idle4,
-            renderables.idle5,
-            renderables.idle6,
-            renderables.idle7,
-            renderables.idle8,
-            renderables.idle9
-        ];
+        const idle_frames = [
+            renderables['idle0'],
+            renderables['idle1'],
+            renderables['idle2'],
+            renderables['idle3'],
+            renderables['idle4'],
+            renderables['idle5'],
+            renderables['idle6'],
+            renderables['idle7'],
+            renderables['idle8'],
+            renderables['idle9']
+        ],
+            walk_frames = [
+                    renderables['walk0'],
+                    renderables['walk1'],
+                    renderables['walk2'],
+                    renderables['walk3'],
+                    renderables['walk4'],
+                    renderables['walk5'],
+                    renderables['walk6'],
+                    renderables['walk7']
+                ];
 
-        console.log(renderables);
-        console.log(animations);
+        animations.idle = new Animatable("idle", idle_frames, 15, true);
+        animations.walk = new Animatable("walk", walk_frames, 15, true);
+
+        resources.animations = animations;
         return resources;
     })
 
@@ -183,28 +199,30 @@ window.g = new Game({
         // solid rects
         let {vec2, vec3} = vMath;
 
-        console.log(sprites);
-        entities.push(new Entity("whiterect", [
-            new RenderableSolidRect("rect1", 50, 50, color(1.0,1.0,1.0,0.0)),
-            new Position("pos1", vec3(150, 150))
-            //new AABBCollidable("col1", 50, 50)
-        ]));
 
         entities.push(new Entity("blackrect", [
-            new RenderableSolidRect("rect2", 50, 50),
+            new RenderableSolidRect("rect2", 20, 20),
             new Position("pos2",vec3(50, 50))
             //new AABBCollidable("col2", 50, 50)
         ]));
 
         entities.push(new Entity("man", [
-            new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
+            //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
+            resources.animations.idle,
             new Position("pos3", vec3(83, 450)),
             new Movable("mov1", vec2(0, 0), undefined, 10),
             new AABBCollidable("man_collider", 32, 32),
             new IdleState()
         ]));
 
-        console.log(sprites.map);
+        entities.push(new Entity("man2", [
+            //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
+            resources.animations.walk,
+            new Position("pos3", vec3(300, 450)),
+            new Movable("mov1", vec2(0, 0), undefined, 10),
+            new AABBCollidable("man_collider", 32, 32),
+            new IdleState()
+        ]));
 
         let m = new Map(sprites.map,
             vec2(25, 25),
@@ -228,7 +246,7 @@ window.g = new Game({
         let position   = Registry.getFlag("position");
         let movable = Registry.getFlag("movable");
         let renderable = Registry.getFlag("renderable");
-        let collidable = Registry.getFlag("collidable");
+        //let collidable = Registry.getFlag("collidable");
         let state      = Registry.getFlag("state");
     //
     //    // circle routine
@@ -250,7 +268,7 @@ window.g = new Game({
     //
         let mouse = this.input.mouse.pos;
 
-        let rect_pos = entities[1].get(position);
+        let rect_pos = entities[0].get(position);
         rect_pos.x = mouse.x;
         rect_pos.y = mouse.y;
     //

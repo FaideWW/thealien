@@ -45,12 +45,12 @@ class AnimationSystem extends GameSystem {
 }
 
 class Animatable extends Component {
-    constructor(c_name, frames, framerate, repeatable = false) {
+    constructor(c_name, frames, framerate, repeatable = true) {
         "use strict";
         super(c_name, "animatable");
 
         this._frames = frames;
-        this._frametime = framerate / 1000;
+        this._frametime = 1000 / (framerate || 1);
         this._repeatable = repeatable;
 
         this.current_frame = 0;
