@@ -8,11 +8,14 @@ Follow development [here](http://www.faide.net/).
 
 ###Usage
 Clone the repository.  Run
+
     npm install
+    
     gulp babel
+    
     python3 -m http.server
 
-Navigate to `http://localhost:[PORT]/test.html` where port is the port used by the python server.
+Navigate to `http://localhost:[PORT]/test.html` where `[PORT]` is the port used by the python server.
 
 
 
