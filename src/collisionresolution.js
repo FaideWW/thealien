@@ -32,7 +32,6 @@ export default class CollisionResolutionSystem extends GameSystem {
                     interpolation = dt / 1000,
                     interpolated_velocity = vMath.mul(movable.velocity, interpolation);
 
-                if (collidable_queue.length) console.log(collidable_queue);
                 while (collidable_queue.length) {
                     let manifold = collidable.__collided.shift();
                     if (manifold.type === 'swept') {
@@ -56,8 +55,6 @@ export default class CollisionResolutionSystem extends GameSystem {
                         position.y += manifold.ynormal * manifold.depth;
                     }
                 }
-
-                console.log('finalpos:', position);
 
             },
             (function (e) {

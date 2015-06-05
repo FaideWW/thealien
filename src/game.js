@@ -6,7 +6,7 @@ import Entity from "./entity.js";
 import WebGLRenderer from "./render.js";
 import ResourceManager from "./resource.js";
 import Interface from "./interface.js";
-import {rAF, cRAF} from "./utils.js";
+import {rAF, cRAF, vec2} from "./utils.js";
 
 /**
  * class Game
@@ -51,7 +51,7 @@ export default class {
         this.activeScene = null;
         this.__last_time = 0;
 
-        this.__input = new Interface(window);
+        this.__input = new Interface(window, vec2(this.canvas.offsetLeft, this.canvas.offsetTop));
 
 
 

@@ -102,7 +102,6 @@ export default class WebGLRenderer extends GameSystem {
 
         this._resolution = vMath.vec3(res.width, res.height, 1);
         // used to send the resolution as a uniform variable to the vertex shader
-        this._resolution_array = new Float32Array([el.width, el.height, 1.0]);
 
 
         try {
@@ -181,7 +180,7 @@ export default class WebGLRenderer extends GameSystem {
     _initShaderProgram(args) {
         let gl = this.ctx;
 
-        let {fragment_source, vertex_source, buffers: bufferlist, uniforms: uniformList, attributes: attribList} = args;
+        const {fragment_source, vertex_source, buffers: bufferlist, uniforms: uniformList, attributes: attribList} = args;
 
         // attempt to compile shaders
         let fs = this._initShader(gl.FRAGMENT_SHADER, fragment_source);
@@ -198,7 +197,6 @@ export default class WebGLRenderer extends GameSystem {
         });
 
 
-        this._shader_program = gl.createProgram();
         gl.attachShader(program, fs);
         gl.attachShader(program, vs);
         gl.linkProgram(program);
@@ -259,12 +257,6 @@ export default class WebGLRenderer extends GameSystem {
     }
 
     update(scene, dt) {
-        let frenderable = Registry.getFlag('renderable');
-        let fposition   = Registry.getFlag('position');
-        //if (!this.__lock && renderable && position) {
-        //    this.__lock = renderable | position;
-        //}
-
         this.clear();
 
         if (scene.map) {
@@ -272,6 +264,7 @@ export default class WebGLRenderer extends GameSystem {
         }
 
         scene.all((e) => {
+            // TODO: more performance can be gained by doing this on scene creation as an insertion sort
             const sorted_entities = this._sortRenderablesByTexture(e);
             this._drawRenderablesByTexture(sorted_entities);
 
@@ -313,7 +306,7 @@ export default class WebGLRenderer extends GameSystem {
     }
 
     // TODO: when camera functionality is added, maporigin will change to camera offset
-    drawMap(map, map_origin = vMath.vec2()) {
+    drawMap(map /*maporigin = vMath.vec2()*/) {
         const gl = this.ctx,
             shader = this._shaders.textured_rect;
 
@@ -333,7 +326,6 @@ export default class WebGLRenderer extends GameSystem {
             alpha                        = shader.uniforms.uAlpha,
 
             vertices_buffer              = shader.buffers.vertices,
-            texture_buffer               = shader.buffers.texture,
 
             ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10),
             pMatrix = new Float32Array(mMath.flatten(ortho_matrix)),
@@ -421,7 +413,7 @@ export default class WebGLRenderer extends GameSystem {
             fposition                    = Registry.getFlag('position'),
 
             ortho_matrix = mMath.orthographic(0, this._resolution.x, this._resolution.y, 0, 0, 10),
-            pMatrix = new Float32Array(mMath.flatten(ortho_matrix));;
+            pMatrix = new Float32Array(mMath.flatten(ortho_matrix));
 
         gl.enableVertexAttribArray(vertex_position_attribute);
         gl.enableVertexAttribArray(texture_coordinate_attribute);
