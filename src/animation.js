@@ -3,7 +3,7 @@
  */
 
 import GameSystem from './system.js';
-import {Component} from './component.js';
+import {Component, Registry} from './component.js';
 import {RenderableTexturedRect} from './renderable.js';
 
 let uid = 0;
@@ -15,33 +15,63 @@ Animation piggy-backs off of the state manager; states share a one-to-one relati
 class AnimationSystem extends GameSystem {
     constructor(c_id = `animation${uid++}`) {
         "use strict";
-        super(c_id, ["state", "renderable"])
+        super(c_id, ["animatable"])
     }
 
     update(scene, dt) {
         "use strict";
+
+        const fanimatable = Registry.getFlag('animatable');
+
         scene.each(
             (e) => {
+                const animatable = e.get(fanimatable);
 
-            },
-            (e) => {
-                return e.has(this.lock) && e.get(this.__flags.renderable).type === 'animation';
-            }
+                if (animatable.current_time + dt >= animatable.frametime) {
+                    const num_frames = animatable.frames.length;
+                    // trigger frame step
+                    if (animatable.current_frame < num_frames - 1 || animatable.repeatable) {
+                        animatable.current_frame = (animatable.current_frame + 1) % num_frames;
+
+                        // overwrite current renderable
+                        e.add(animatable.frames[animatable.current_frame]);
+                    }
+                }
+
+                animatable.current_time = (animatable.current_time + dt) % animatable.frametime;
+            }, this.lock
         )
     }
 }
 
-class RenderableAnimated extends Component {
-    constructor(c_name, sprites) {
+class Animatable extends Component {
+    constructor(c_name, frames, framerate, repeatable = false) {
         "use strict";
-        super(c_name, "renderable");
+        super(c_name, "animatable");
 
-        this.type = "animation";
-        this._current = null;
+        this._frames = frames;
+        this._frametime = framerate / 1000;
+        this._repeatable = repeatable;
+
+        this.current_frame = 0;
+        this.current_time = 0;
+
     }
 
-    get current() {
+    get frames() {
         "use strict";
-        return this._current;
+        return this._frames;
+    }
+
+    get frametime() {
+        "use strict";
+        return this._frametime;
+    }
+
+    get repeatable() {
+        "use strict";
+        return this._repeatable;
     }
 }
+
+export {AnimationSystem, Animatable}

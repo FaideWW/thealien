@@ -119,6 +119,7 @@ window.g = new Game({
         console.error(`Error compiling shaders: ${error}`)
     })
 
+    // build sprites and textures
     .then(function (resources) {
         "use strict";
 
@@ -142,14 +143,47 @@ window.g = new Game({
         console.error(`error: ${error}`);
     })
 
+    //// create animations
+    .then(function (resources) {
+        "use strict";
+        const sprites = resources.sprites,
+              renderables = {},
+              animations = {};
+
+        for (let sprite_name in sprites.jetroid) {
+            if (sprites.jetroid.hasOwnProperty(sprite_name)) {
+                const sprite = sprites.jetroid[sprite_name];
+                renderables[sprite_name] = new RenderableTexturedRect(sprite_name, 32, 32, sprite);
+            }
+        }
+
+        animations.idle = [
+            renderables.idle0,
+            renderables.idle1,
+            renderables.idle2,
+            renderables.idle3,
+            renderables.idle4,
+            renderables.idle5,
+            renderables.idle6,
+            renderables.idle7,
+            renderables.idle8,
+            renderables.idle9
+        ];
+
+        console.log(renderables);
+        console.log(animations);
+        return resources;
+    })
+
     .ready(function (resources) { // don't use arrow here, we need to preserve execution context
         "use strict";
 
-        let sprites = resources.sprites;
+        const sprites = resources.sprites;
 
         // solid rects
         let {vec2, vec3} = vMath;
 
+        console.log(sprites);
         entities.push(new Entity("whiterect", [
             new RenderableSolidRect("rect1", 50, 50, color(1.0,1.0,1.0,0.0)),
             new Position("pos1", vec3(150, 150))
