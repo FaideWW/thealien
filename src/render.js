@@ -7,8 +7,6 @@
 /**
  * solution: batch draw calls
  *
- * TODO: use WebGL inspector to help reduce unnecessary calls
- *
  * sort draws with the following priority: same shader program -> same attributes -> same texture -> same uniforms
  *
  * http://stackoverflow.com/questions/15561871/the-fastest-way-to-batch-calls-in-webgl
@@ -493,7 +491,6 @@ export default class WebGLRenderer extends GameSystem {
             pUniform                    =  shader.uniforms.uPMatrix,
             mvUniform                   = shader.uniforms.uMVMatrix;
 
-        // TODO: does this attach to the renderable?
         gl.enableVertexAttribArray(vertex_position_attribute);
         gl.enableVertexAttribArray(vertex_color_attribute);
 
@@ -543,7 +540,6 @@ export default class WebGLRenderer extends GameSystem {
             texSampler                   = shader.uniforms.uSampler,
             alpha                        = shader.uniforms.uAlpha;
 
-        // TODO: does this attach to the renderable?
         gl.enableVertexAttribArray(vertex_position_attribute);
         gl.enableVertexAttribArray(texture_coordinate_attribute);
 

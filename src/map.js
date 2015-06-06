@@ -26,10 +26,8 @@ function processTiles(tile_sprites, tile_halfdims) {
     return tiles;
 }
 
-// TODO: convert layer objects into: nested array of collidables, and a nested array of renderables
 function processMap(map_data) {
     "use strict";
-    let layers = [];
     let collision = [];
     let render    = [];
     for (let layer of map_data) {

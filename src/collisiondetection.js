@@ -107,7 +107,6 @@ export default class CollisionDetectionSystem extends GameSystem {
                             if (CollisionDetectionSystem.__AABBBooleanTest(sweptAABB.collidable, map_collidable, sweptAABB.position, tile_position)) {
 
                                 // swept collision test only works if the boxes are not already intersecting.
-                                // TODO: add a discrete intersection test after this to catch any edge cases
                                 const manifold = CollisionDetectionSystem.__SweptAABBTest(
                                     collidable, map_collidable, position, tile_position, interpolated_velocity);
 

@@ -46,10 +46,6 @@ class RenderableTexturedRect extends Component {
         super(c_name, "renderable");
 
 
-        //TODO: pull out texture data into a texture object
-
-
-
         this.type = "texturedrect";
         this.origin = vMath.vec3(origin_x, origin_y, origin_z);
 

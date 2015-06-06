@@ -56,7 +56,6 @@ let vec_ops = {
  */
 let mtx = function (vals) {
     "use strict";
-    // TODO: implement enough matrix operations to support GL rendering
     if (vals.length) {
         let n = vals[0].length;
         if (n && vals.every((v) => v.length === n)) {
