@@ -30,10 +30,10 @@ class IdleStateSystem extends GameSystem {
 
     update(scene, dt) {
         "use strict";
+        const keys = scene.input.key;
 
         scene.each(
             (entity) => {
-                const keys = scene.input.key;
 
                 if (keys.a) {
                     IdleStateSystem.transitionState(entity, WalkLeftState);
@@ -60,13 +60,15 @@ class WalkLeftStateSystem extends GameSystem {
 
     update(scene, dt) {
         "use strict";
+        const keys = scene.input.key;
 
         scene.each(
             (entity) => {
-                const keys = scene.input.key;
 
                 if (!keys.a) {
                     WalkLeftStateSystem.transitionState(entity, IdleState);
+                } else if (keys.d > 0 && keys.d > keys.a) {
+                    WalkLeftStateSystem.transitionState(entity, WalkRightState);
                 }
             },
             stateFilter.call(this, "walkleft")
@@ -87,13 +89,15 @@ class WalkRightStateSystem extends GameSystem {
 
     update(scene, dt) {
         "use strict";
+        const keys = scene.input.key;
 
         scene.each(
             (entity) => {
-                const keys = scene.input.key;
 
                 if (!keys.d) {
                     WalkRightStateSystem.transitionState(entity, IdleState);
+                } else if (keys.a > 0 && keys.a > keys.d) {
+                    WalkRightStateSystem.transitionState(entity, WalkLeftState);
                 }
             },
             stateFilter.call(this, "walkright")

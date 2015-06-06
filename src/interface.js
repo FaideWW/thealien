@@ -85,7 +85,6 @@ export default class Interface {
     // TODO: add a compatibility shim to support browsers without KeyboardEvent.key
     handleKeyEvent(e) {
         "use strict";
-        let assignment = -1;
         let key = "";
         if (e.key) {
 
@@ -100,8 +99,9 @@ export default class Interface {
              */
             key = String.fromCharCode(e.keyCode);
         }
-        if (e.type === 'keydown') {
-            assignment = 1;
+        let assignment = this.__key_state[key];
+        if (e.type === 'keydown' && assignment === 0) {
+            assignment = Date.now();
         } else if (e.type === 'keyup') {
             assignment = 0;
         } else {
