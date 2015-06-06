@@ -3,7 +3,7 @@
  */
 
 import GameSystem from './system.js';
-import {Component} from './component.js';
+import {Component, Registry} from './component.js';
 
 /**
  *
@@ -18,7 +18,7 @@ let uid = 0;
 let stateFilter = function (state_name) {
     "use strict";
     return (e) => {
-        return e.has(this.lock) && e.get(this.__flags.state).state_name === state_name;
+        return e.has(this.lock) && e.get(Registry.getFlag('state')).state_name === state_name;
     }
 };
 
@@ -30,21 +30,29 @@ class IdleStateSystem extends GameSystem {
 
     update(scene, dt) {
         "use strict";
+
         scene.each(
             (entity) => {
-                let physics = entity.get(this.__flags.movable);
-                if (physics.velocity.y < 0) {
-                    entity.add(new MovingUpState());
-                } else if (physics.velocity.y > 0) {
-                    entity.add(new MovingDownState());
+                const keys = scene.input.key;
+
+                if (keys.a) {
+                    IdleStateSystem.transitionState(entity, WalkLeftState);
+                } else if (keys.d) {
+                    IdleStateSystem.transitionState(entity, WalkRightState);
                 }
+
             },
             stateFilter.call(this, "idle")
         );
     }
+
+    static transitionState(entity, state_constructor) {
+        "use strict";
+        entity.add(new state_constructor());
+    }
 }
 
-class MovingDownStateSystem extends GameSystem {
+class WalkLeftStateSystem extends GameSystem {
     constructor(s_id = `state${uid++}`) {
         "use strict";
         super(s_id, ["state", "movable"]);
@@ -52,19 +60,26 @@ class MovingDownStateSystem extends GameSystem {
 
     update(scene, dt) {
         "use strict";
+
         scene.each(
             (entity) => {
-                let physics = entity.get(this.__flags.movable);
-                if (physics.velocity.y < 0) {
-                    entity.add(new MovingUpState());
+                const keys = scene.input.key;
+
+                if (!keys.a) {
+                    WalkLeftStateSystem.transitionState(entity, IdleState);
                 }
             },
-            stateFilter.call(this, "movingdown")
+            stateFilter.call(this, "walkleft")
         );
+    }
+
+    static transitionState(entity, state_constructor) {
+        "use strict";
+        entity.add(new state_constructor());
     }
 }
 
-class MovingUpStateSystem extends GameSystem{
+class WalkRightStateSystem extends GameSystem {
     constructor(s_id = `state${uid++}`) {
         "use strict";
         super(s_id, ["state", "movable"]);
@@ -72,17 +87,25 @@ class MovingUpStateSystem extends GameSystem{
 
     update(scene, dt) {
         "use strict";
+
         scene.each(
             (entity) => {
-                let physics = entity.get(this.__flags.movable);
-                if (physics.velocity.y > 0) {
-                    entity.add(new MovingDownState());
+                const keys = scene.input.key;
+
+                if (!keys.d) {
+                    WalkRightStateSystem.transitionState(entity, IdleState);
                 }
             },
-            stateFilter.call(this, "movingup")
+            stateFilter.call(this, "walkright")
         );
     }
+
+    static transitionState(entity, state_constructor) {
+        "use strict";
+        entity.add(new state_constructor());
+    }
 }
+
 class IdleState extends Component {
     constructor(c_name) {
         "use strict";
@@ -91,20 +114,85 @@ class IdleState extends Component {
     }
 }
 
-class MovingDownState extends Component {
+class WalkLeftState extends Component {
     constructor(c_name) {
         "use strict";
         super(c_name, "state");
-        this.state_name = "movingdown";
+        this.state_name = "walkleft";
     }
 }
 
-class MovingUpState extends Component {
+class WalkRightState extends Component {
     constructor(c_name) {
         "use strict";
         super(c_name, "state");
-        this.state_name = "movingup";
+        this.state_name = "walkright";
     }
 }
 
-export {IdleState, MovingDownState, MovingUpState, IdleStateSystem, MovingDownStateSystem, MovingUpStateSystem};
+//class MovingDownStateSystem extends GameSystem {
+//    constructor(s_id = `state${uid++}`) {
+//        "use strict";
+//        super(s_id, ["state", "movable"]);
+//    }
+//
+//    update(scene, dt) {
+//        "use strict";
+//        scene.each(
+//            (entity) => {
+//                let physics = entity.get(Registry.getFlag('movable'));
+//                if (physics.velocity.y < 0) {
+//                    entity.add(new MovingUpState());
+//                }
+//            },
+//            stateFilter.call(this, "movingdown")
+//        );
+//    }
+//}
+//
+//class MovingUpStateSystem extends GameSystem{
+//    constructor(s_id = `state${uid++}`) {
+//        "use strict";
+//        super(s_id, ["state", "movable"]);
+//    }
+//
+//    update(scene, dt) {
+//        "use strict";
+//        scene.each(
+//            (entity) => {
+//                let physics = entity.get(Registry.getFlag('movable'));
+//                if (physics.velocity.y > 0) {
+//                    entity.add(new MovingDownState());
+//                }
+//            },
+//            stateFilter.call(this, "movingup")
+//        );
+//    }
+//}
+//
+//class MovingDownState extends Component {
+//    constructor(c_name) {
+//        "use strict";
+//        super(c_name, "state");
+//        this.state_name = "movingdown";
+//    }
+//}
+//
+//class MovingUpState extends Component {
+//    constructor(c_name) {
+//        "use strict";
+//        super(c_name, "state");
+//        this.state_name = "movingup";
+//    }
+//}
+
+export {
+    IdleState,
+    IdleStateSystem,
+    WalkLeftStateSystem,
+    WalkRightStateSystem
+    //MovingDownState,
+    //MovingUpState,
+    //MovingDownStateSystem,
+    //MovingUpStateSystem
+    };

@@ -12,13 +12,14 @@ import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
-import {IdleState, IdleStateSystem, MovingDownStateSystem, MovingUpStateSystem} from './state.js';
+import {IdleState, IdleStateSystem, WalkLeftStateSystem, WalkRightStateSystem} from './state.js';
 import CollisionDetectionSystem from './collisiondetection.js';
 import CollisionResolutionSystem from './collisionresolution.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
 import SpriteLoader from "./sprite.js";
 import {Animatable, AnimationSystem} from "./animation.js";
+import PlayerControllerSystem from "./controller.js";
 
 let canvas = document.querySelector("#screen");
 
@@ -43,10 +44,13 @@ window.g = new Game({
     systems: {
         state: [
             new IdleStateSystem(),
-            new MovingDownStateSystem(),
-            new MovingUpStateSystem()
+            new WalkLeftStateSystem(),
+            new WalkRightStateSystem()
+            //new MovingDownStateSystem(),
+            //new MovingUpStateSystem()
         ],
         physics: [
+            new PlayerControllerSystem(),
             new CollisionDetectionSystem(),
             new CollisionResolutionSystem(),
             new PhysicsSystem()
@@ -221,7 +225,6 @@ window.g = new Game({
             new Position("pos3", vec3(300, 450)),
             new Movable("mov1", vec2(0, 0), undefined, 10),
             new AABBCollidable("man_collider", 32, 32),
-            new IdleState()
         ]));
 
         let m = new Map(sprites.map,
@@ -247,7 +250,7 @@ window.g = new Game({
         let movable = Registry.getFlag("movable");
         let renderable = Registry.getFlag("renderable");
         //let collidable = Registry.getFlag("collidable");
-        let state      = Registry.getFlag("state");
+        let fstate      = Registry.getFlag("state");
     //
     //    // circle routine
     //
@@ -271,6 +274,7 @@ window.g = new Game({
         let rect_pos = entities[0].get(position);
         rect_pos.x = mouse.x;
         rect_pos.y = mouse.y;
+
     //
     //    let rect_collidable = entities[1].get(collidable);
     //    let rect_renderable = entities[1].get(renderable);

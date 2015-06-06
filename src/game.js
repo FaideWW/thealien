@@ -157,7 +157,7 @@ export default class {
         this.__input.process();
 
         if (this.activeScene) {
-            let scene = this.activeScene;
+            const scene = this.activeScene;
 
             this.__phaseorder.forEach((phase_id) => {
                 let systems = this.__phases[phase_id];
@@ -232,6 +232,8 @@ export default class {
         } else if (this.__scenes[scene_or_id.id]) {
             this.activeScene = this.__scenes[scene_or_id.id];
         }
+
+        this.activeScene.__inputstate = this.input;
     }
 
 

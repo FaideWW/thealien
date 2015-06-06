@@ -12,6 +12,8 @@ export default class Scene {
 
         this.__entities = entities;
         this.__map      = map;
+
+        this.__inputstate = null;
     }
 
     get id() {
@@ -27,6 +29,11 @@ export default class Scene {
     get map() {
         "use strict";
         return this.__map;
+    }
+
+    get input() {
+        "use strict";
+        return this.__inputstate;
     }
 
     *filter(predicate) {
