@@ -50,9 +50,9 @@ window.g = new Game({
         ],
         physics: [
             new PlayerControllerSystem(),
+            new PhysicsSystem(),
             new CollisionDetectionSystem(),
-            new CollisionResolutionSystem(),
-            new PhysicsSystem()
+            //new CollisionResolutionSystem(),
         ],
         draw: [
             new AnimationSystem()

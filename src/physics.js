@@ -37,6 +37,8 @@ class PhysicsSystem extends GameSystem{
                 const gravity = vMath.vec2(0, 2600);
                 movable.velocity.x += gravity.x * interpolation;
                 movable.velocity.y += gravity.y * interpolation;
+            } else {
+                movable.__onground = false;
             }
 
 

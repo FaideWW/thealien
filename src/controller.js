@@ -40,7 +40,7 @@ export default class PlayerControllerSystem extends GameSystem {
 
                 const ymotion = state['ymotion'];
                 if (ymotion === 'ground') {
-                    movable.velocity.y = 0;
+                    //movable.velocity.y = 0;
                 } else if (ymotion === 'jump') {
                     movable.__onground = false;
                     movable.velocity.y = -1000;

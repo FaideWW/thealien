@@ -83,7 +83,6 @@ class XMotionStateManager extends StateManager {
     walkleft(stateful, scene) {
         const keys = scene.input.key;
         "use strict";
-        console.log('walkleft');
         if (!keys.a) {
             this._enter(stateful, "idle");
         } else if (keys.d > 0 && keys.d > keys.a) {
@@ -125,6 +124,7 @@ class YMotionStateManager extends StateManager {
         "use strict";
         const fmovable = Registry.getFlag("movable");
         if (e.get(fmovable).__onground) {
+            //console.log(e.get(fmovable).__onground);
             this._enter(stateful, "ground");
         }
     }

@@ -7,7 +7,7 @@ import {Registry} from './component.js';
 
 let uid = 0;
 
-export default class CollisionResolutionSystem extends GameSystem {
+class CollisionResolutionSystem extends GameSystem {
     constructor(s_id = `collisionresolution${uid++}`) {
         "use strict";
         super(s_id, ["position", "collidable", "movable"]);
@@ -35,6 +35,8 @@ export default class CollisionResolutionSystem extends GameSystem {
                 while (collidable_queue.length) {
                     let manifold = collidable.__collided.shift();
                     if (manifold.type === 'swept') {
+                        console.log('swept');
+                        //console.log('interpolated velocity', interpolated_velocity);
                         position.x += interpolated_velocity.x * manifold.t;
                         position.y += interpolated_velocity.y * manifold.t;
 
@@ -51,6 +53,7 @@ export default class CollisionResolutionSystem extends GameSystem {
                             movable.__onground = true;
                         }
                     } else if (manifold.type === 'discrete') {
+                        console.log('discrete');
                         position.x += manifold.xnormal * manifold.depth;
                         position.y += manifold.ynormal * manifold.depth;
                     }
@@ -63,3 +66,52 @@ export default class CollisionResolutionSystem extends GameSystem {
         );
     }
 }
+
+function resolveSweptAABB(entity, manifold, dt) {
+    "use strict";
+    const fcollidable = Registry.getFlag('collidable'),
+        fposition   = Registry.getFlag('position'),
+        fmovable    = Registry.getFlag('movable'),
+        collidable = entity.get(fcollidable),
+        position   = entity.get(fposition),
+        movable    = entity.get(fmovable),
+
+        interpolated_velocity = vMath.mul(movable.velocity, dt / 1000);
+
+    position.x += interpolated_velocity.x * manifold.t;
+    position.y += interpolated_velocity.y * manifold.t;
+
+    // TODO: this is one of many different reactions to a collision.  write case for reflection too
+
+    let remainder = 1 - manifold.t,
+        dot = vMath.dot(movable.velocity, vMath.vec2(manifold.xnormal, manifold.ynormal)) * remainder;
+
+    movable.velocity.x = dot * manifold.ynormal;
+    movable.velocity.y = dot * manifold.xnormal;
+
+    // TODO: this is guarding against a very specific interaction.  make it more general
+    if (manifold.xnormal === 0 && manifold.ynormal === -1) {
+        movable.__onground = true;
+    }
+}
+
+function resolveDiscreteAABB(entity, manifold) {
+    "use strict";
+    const fposition = Registry.getFlag('position'),
+        fmovable = Registry.getFlag('movable'),
+        position = entity.get(fposition),
+        movable = entity.get(fmovable),
+        dot = vMath.dot(movable.velocity, vMath.vec2(manifold.xnormal, manifold.ynormal));
+
+    position.x += manifold.xnormal * manifold.depth;
+    position.y += manifold.ynormal * manifold.depth;
+
+    movable.velocity.x = dot * manifold.ynormal;
+    movable.velocity.y = dot * manifold.xnormal;
+}
+
+export {
+CollisionResolutionSystem,
+resolveSweptAABB,
+resolveDiscreteAABB
+    }

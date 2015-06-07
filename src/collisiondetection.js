@@ -5,6 +5,7 @@
 import GameSystem from './system.js';
 import {Component, Registry} from './component.js';
 import {vMath} from './utils.js';
+import {resolveSweptAABB, resolveDiscreteAABB} from './collisionresolution.js';
 
 let uid = 0;
 
@@ -111,14 +112,24 @@ export default class CollisionDetectionSystem extends GameSystem {
                                     collidable, map_collidable, position, tile_position, interpolated_velocity);
 
                                 if (manifold.t > 0 && manifold.t < 1) {
-                                    collidable.__collided.push(manifold);
+
+                                    //resolve collisions immediately
+                                    resolveSweptAABB(entity, manifold, dt);
+
+                                    //collidable.__collided.push(manifold);
+                                } else {
+
+                                    // discrete fallback
+                                    let depthTest = CollisionDetectionSystem.__AABBPenetrationTest(collidable, map_collidable, position, tile_position);
+                                    if (depthTest.depth > 0) {
+
+                                        // resolve collisions immediately
+                                        resolveDiscreteAABB(entity, depthTest, dt);
+
+                                        //collidable.__collided.push(depthTest);
+                                    }
                                 }
 
-                                // discrete fallback
-                                let depthTest = CollisionDetectionSystem.__AABBPenetrationTest(collidable, map_collidable, position, tile_position);
-                                if (depthTest.depth > 0) {
-                                    collidable.__collided.push(depthTest);
-                                }
                             }
                         }
                     }
@@ -250,56 +261,62 @@ export default class CollisionDetectionSystem extends GameSystem {
                 depth: 0
             };
 
-        let xdifference = Math.abs(minkowski_aabb_hw - offset.x),
-            ydifference = Math.abs(minkowski_aabb_hh - offset.y);
-
-        //console.log(xdifference);
-        //console.log(ydifference);
+        // TODO: there has to be a better way to do this calc
+        let xdifference = Math.abs(Math.abs(minkowski_aabb_hw) - Math.abs(offset.x)),
+            ydifference = Math.abs(Math.abs(minkowski_aabb_hh) - Math.abs(offset.y));
 
         if (offset.x > 0 && offset.x < minkowski_aabb_hw) {
             if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
-
+                // quadrant 1 collision
                 if (xdifference < ydifference) {
+                    // right face
                     manifold.xnormal = -1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
                 } else {
+                    // bottom
                     manifold.xnormal = 0;
                     manifold.ynormal = -1;
                     manifold.depth = ydifference;
                 }
-            } else if (offset.y < 0 && offset.y > minkowski_aabb_hh) {
-
+            } else if (offset.y < 0 && offset.y > -minkowski_aabb_hh) {
+                // quadrant 4 collision
                 if (xdifference < ydifference) {
+                    // right face
+
                     manifold.xnormal = -1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
                 } else {
+                    // top face
                     manifold.xnormal = 0;
                     manifold.ynormal = 1;
                     manifold.depth = ydifference;
                 }
             }
-        } else if (offset.x < 0 && offset.x > minkowski_aabb_hw) {
-
+        } else if (offset.x < 0 && offset.x > -minkowski_aabb_hw) {
             if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
-
+                // quadrant 2 collision
                 if (xdifference < ydifference) {
+                    // left face
                     manifold.xnormal = 1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
                 } else {
+                    // bottom face
                     manifold.xnormal = 0;
                     manifold.ynormal = -1;
                     manifold.depth = ydifference;
                 }
-            } else if (offset.y < 0 && offset.y > minkowski_aabb_hh) {
-
+            } else if (offset.y < 0 && offset.y > -minkowski_aabb_hh) {
+                // quadrant 3 collision
                 if (xdifference < ydifference) {
+                    // left face
                     manifold.xnormal = 1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
                 } else {
+                    // top face
                     manifold.xnormal = 0;
                     manifold.ynormal = 1;
                     manifold.depth = ydifference;
