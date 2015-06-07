@@ -12,13 +12,13 @@ import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';
-import {IdleState, IdleStateSystem, WalkLeftStateSystem, WalkRightStateSystem} from './state.js';
+import {XMotionStateManager, YMotionStateManager, Stateful} from './state.js';
 import CollisionDetectionSystem from './collisiondetection.js';
 import CollisionResolutionSystem from './collisionresolution.js';
 import AABBCollidable from './collidable.js';
 import Map from './map.js';
 import SpriteLoader from "./sprite.js";
-import {Animatable, AnimationSystem} from "./animation.js";
+import {Animatable, AnimationSystem, Animation} from "./animation.js";
 import PlayerControllerSystem from "./controller.js";
 
 let canvas = document.querySelector("#screen");
@@ -43,9 +43,8 @@ window.g = new Game({
     phases: ['state', 'collision', 'physics', 'draw'],
     systems: {
         state: [
-            new IdleStateSystem(),
-            new WalkLeftStateSystem(),
-            new WalkRightStateSystem()
+            new XMotionStateManager(),
+            new YMotionStateManager()
             //new MovingDownStateSystem(),
             //new MovingUpStateSystem()
         ],
@@ -104,17 +103,17 @@ window.g = new Game({
         "use strict";
 
         this.render.addShader('solid_rect', {
-            fragment: resources.shader.solidrect_frag_shader,
-            vertex:   resources.shader.solidrect_vert_shader
-        },
+                fragment: resources.shader.solidrect_frag_shader,
+                vertex:   resources.shader.solidrect_vert_shader
+            },
             ['vertices', 'color'],
             ['uPMatrix', 'uMVMatrix'],
             ['aVertexPosition', 'aVertexColor']
         );
         this.render.addShader('textured_rect', {
-            fragment: resources.shader.texturedrect_frag_shader,
-            vertex:   resources.shader.texturedrect_vert_shader
-        },
+                fragment: resources.shader.texturedrect_frag_shader,
+                vertex:   resources.shader.texturedrect_vert_shader
+            },
             ['vertices', 'texture'],
             ['uPMatrix', 'uMVMatrix', 'uSampler', 'uAlpha'],
             ['aVertexPosition', 'aTextureCoord']
@@ -133,15 +132,15 @@ window.g = new Game({
 
         // generate sprites and shitsprite_data = {
         let sprite_data = {
-                map: {
-                    texture: resources.image.map_tile_sheet,
-                    sheet: resources.json.map_tile_data
-                },
-                jetroid: {
-                    texture: resources.image.player_sheet,
-                    sheet:   resources.json.player_data
-                }
-            };
+            map: {
+                texture: resources.image.map_tile_sheet,
+                sheet: resources.json.map_tile_data
+            },
+            jetroid: {
+                texture: resources.image.player_sheet,
+                sheet:   resources.json.player_data
+            }
+        };
         resources.sprites = SpriteLoader(resources.image, sprite_data);
 
         return resources;
@@ -151,12 +150,12 @@ window.g = new Game({
         console.error(`error: ${error}`);
     })
 
-    //// create animations
+    // create animations
     .then(function (resources) {
         "use strict";
         const sprites = resources.sprites,
-              renderables = {},
-              animations = {};
+            renderables = {},
+            animations = {};
 
         for (let sprite_name in sprites.jetroid) {
             if (sprites.jetroid.hasOwnProperty(sprite_name)) {
@@ -166,30 +165,30 @@ window.g = new Game({
         }
 
         const idle_frames = [
-            renderables['idle0'],
-            renderables['idle1'],
-            renderables['idle2'],
-            renderables['idle3'],
-            renderables['idle4'],
-            renderables['idle5'],
-            renderables['idle6'],
-            renderables['idle7'],
-            renderables['idle8'],
-            renderables['idle9']
-        ],
+                renderables['idle0'],
+                renderables['idle1'],
+                renderables['idle2'],
+                renderables['idle3'],
+                renderables['idle4'],
+                renderables['idle5'],
+                renderables['idle6'],
+                renderables['idle7'],
+                renderables['idle8'],
+                renderables['idle9']
+            ],
             walk_frames = [
-                    renderables['walk0'],
-                    renderables['walk1'],
-                    renderables['walk2'],
-                    renderables['walk3'],
-                    renderables['walk4'],
-                    renderables['walk5'],
-                    renderables['walk6'],
-                    renderables['walk7']
-                ];
+                renderables['walk0'],
+                renderables['walk1'],
+                renderables['walk2'],
+                renderables['walk3'],
+                renderables['walk4'],
+                renderables['walk5'],
+                renderables['walk6'],
+                renderables['walk7']
+            ];
 
-        animations.idle = new Animatable("idle", idle_frames, 15, true);
-        animations.walk = new Animatable("walk", walk_frames, 15, true);
+        animations.idle = new Animation(idle_frames, 15, true);
+        animations.walk = new Animation(walk_frames, 15, true);
 
         resources.animations = animations;
         return resources;
@@ -212,26 +211,34 @@ window.g = new Game({
 
         entities.push(new Entity("man", [
             //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
-            resources.animations.idle,
+            new Animatable("player", {
+                idle: resources.animations.idle,
+                walk: resources.animations.walk
+            }, "idle"),
             new Position("pos3", vec3(83, 450)),
             new Movable("mov1", vec2(0, 0), undefined, 10),
             new AABBCollidable("man_collider", 32, 32),
-            new IdleState()
+            new Stateful("playerstate", {
+                xmotion: "idle",
+                ymotion: "inair"
+            })
         ]));
 
-        entities.push(new Entity("man2", [
-            //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
-            resources.animations.walk,
-            new Position("pos3", vec3(300, 450)),
-            new Movable("mov1", vec2(0, 0), undefined, 10),
-            new AABBCollidable("man_collider", 32, 32),
-        ]));
+        //entities.push(new Entity("man2", [
+        //    //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
+        //    new Animatable("walktest", {
+        //        walk: resources.animations.walk
+        //    }, "walk"),
+        //    new Position("pos3", vec3(300, 450)),
+        //    new Movable("mov1", vec2(0, 0), undefined, 10),
+        //    new AABBCollidable("man_collider", 32, 32),
+        //]));
 
         let m = new Map(sprites.map,
             vec2(25, 25),
             resources.json.map_layout_data.data,
             resources.image.map_tile_sheet
-            );
+        );
 
         s = new Scene("scene1", entities, m);
         this.addScene(s);
@@ -245,50 +252,50 @@ window.g = new Game({
     })
     .step(function (dt, persist) {
         "use strict";
-    //
+        //
         let position   = Registry.getFlag("position");
         let movable = Registry.getFlag("movable");
         let renderable = Registry.getFlag("renderable");
         //let collidable = Registry.getFlag("collidable");
         let fstate      = Registry.getFlag("state");
-    //
-    //    // circle routine
-    //
-    //    //let e_vel = entities[2].get(movable).velocity;
-    //    //
-    //    //persist.time   = persist.time   || 0;
-    //    //persist.radius = persist.radius || 100;
-    //    //persist.period = persist.period || 5000;
-    //    //
-    //    //
-    //    //persist.time += dt;
-    //    //
-    //    //let interval = (persist.time / persist.period) * Math.PI * 2;
-    //    //
-    //    //e_vel.x = (persist.radius * Math.cos(interval));
-    //    //e_vel.y = (persist.radius * Math.sin(interval));
-    //
-    //
+        //
+        //    // circle routine
+        //
+        //    //let e_vel = entities[2].get(movable).velocity;
+        //    //
+        //    //persist.time   = persist.time   || 0;
+        //    //persist.radius = persist.radius || 100;
+        //    //persist.period = persist.period || 5000;
+        //    //
+        //    //
+        //    //persist.time += dt;
+        //    //
+        //    //let interval = (persist.time / persist.period) * Math.PI * 2;
+        //    //
+        //    //e_vel.x = (persist.radius * Math.cos(interval));
+        //    //e_vel.y = (persist.radius * Math.sin(interval));
+        //
+        //
         let mouse = this.input.mouse.pos;
 
         let rect_pos = entities[0].get(position);
         rect_pos.x = mouse.x;
         rect_pos.y = mouse.y;
 
-    //
-    //    let rect_collidable = entities[1].get(collidable);
-    //    let rect_renderable = entities[1].get(renderable);
-    //
-    //    let fill;
-    //    if (rect_collidable.__collided) {
-    //        fill = color(1.0, 0.0, 0.0);
-    //    } else {
-    //        fill = color(0.0, 0.0, 0.0);
-    //    }
-    //
-    //    rect_renderable.color = fill;
-    //
-    //
+        //
+        //    let rect_collidable = entities[1].get(collidable);
+        //    let rect_renderable = entities[1].get(renderable);
+        //
+        //    let fill;
+        //    if (rect_collidable.__collided) {
+        //        fill = color(1.0, 0.0, 0.0);
+        //    } else {
+        //        fill = color(0.0, 0.0, 0.0);
+        //    }
+        //
+        //    rect_renderable.color = fill;
+        //
+        //
         return persist;
     })
     .run();

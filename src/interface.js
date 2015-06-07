@@ -100,8 +100,10 @@ export default class Interface {
             key = String.fromCharCode(e.keyCode);
         }
         let assignment = this.__key_state[key];
-        if (e.type === 'keydown' && assignment === 0) {
-            assignment = Date.now();
+        if (e.type === 'keydown' && !assignment) {
+            // stores the time that the key was first pressed
+            // if you want to compute the "time held", just subtract this from the current time
+            assignment = e.timeStamp;
         } else if (e.type === 'keyup') {
             assignment = 0;
         } else {

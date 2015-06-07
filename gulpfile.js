@@ -24,7 +24,10 @@ gulp.task('babel', function () {
     return gulp.src(path.src.js)
         .pipe(newer(path.dist.js))
         .pipe(sourcemaps.init())
-        .pipe(babel({modules: 'amd'}))
+        .pipe(babel({
+            modules: 'amd',
+            stage: 0
+        }))
         .pipe(sourcemaps.write("."))
         .pipe(gulp.dest(path.dist.js));
 });

@@ -39,7 +39,7 @@ export default class Entity {
         "use strict";
         let {flag} = component;
         this._components[flag] = component;
-        this._key = (this._key | flag);
+        this._key |= flag;
     }
 
     get(flag) {
@@ -59,7 +59,7 @@ export default class Entity {
 
         if (this._components[flag]) {
             delete this._components[flag];
-            this._key = (this._key & ~flag);
+            this._key &= ~flag;
         }
     }
 }

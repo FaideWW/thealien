@@ -25,29 +25,39 @@ class AnimationSystem extends GameSystem {
 
         scene.each(
             (e) => {
-                const animatable = e.get(fanimatable);
+                const animatable = e.get(fanimatable),
+                    current_animation = animatable.current,
+                    last_animation    = animatable.__last,
+                    animation = animatable.animations[animatable.current];
 
-                if (animatable.current_time + dt >= animatable.frametime) {
-                    const num_frames = animatable.frames.length;
+                // if the animation has been swapped, reset the last one
+                if (current_animation !== last_animation) {
+                    animatable.animations[last_animation].current_frame = 0;
+                    animatable.animations[last_animation].current_time  = 0;
+                }
+
+                if (animation.current_time + dt >= animation.frametime) {
+                    const num_frames = animation.frames.length;
                     // trigger frame step
-                    if (animatable.current_frame < num_frames - 1 || animatable.repeatable) {
-                        animatable.current_frame = (animatable.current_frame + 1) % num_frames;
+                    if (animation.current_frame < num_frames - 1 || animation.repeatable) {
+                        animation.current_frame = (animation.current_frame + 1) % num_frames;
 
                         // overwrite current renderable
-                        e.add(animatable.frames[animatable.current_frame]);
+                        e.add(animation.frames[animation.current_frame]);
                     }
                 }
 
-                animatable.current_time = (animatable.current_time + dt) % animatable.frametime;
+                animatable.__last = current_animation;
+
+                animation.current_time = (animation.current_time + dt) % animation.frametime;
             }, this.lock
         )
     }
 }
 
-class Animatable extends Component {
-    constructor(c_name, frames, framerate, repeatable = true) {
+class Animation {
+    constructor(frames, framerate, repeatable = true) {
         "use strict";
-        super(c_name, "animatable");
 
         this._frames = frames;
         this._frametime = 1000 / (framerate || 1);
@@ -74,4 +84,19 @@ class Animatable extends Component {
     }
 }
 
-export {AnimationSystem, Animatable}
+class Animatable extends Component {
+    constructor(c_name, animations, default_animation) {
+        "use strict";
+        super(c_name, "animatable");
+        this._animations = animations;
+        this.current = default_animation;
+        this.__last = this.current;
+    }
+
+    get animations() {
+        "use strict";
+        return this._animations;
+    }
+}
+
+export {AnimationSystem, Animation, Animatable}
