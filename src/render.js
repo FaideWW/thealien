@@ -443,7 +443,8 @@ export default class WebGLRenderer extends GameSystem {
                         verts      = renderable.verts;
 
                     let transformation_matrix = mMath.compose()
-                        .translate(position);
+                        .translate(position)
+                        .mul(renderable.transform);
 
                     if (transform.rotate) {
                         transformation_matrix.rotate(transform.rotate);

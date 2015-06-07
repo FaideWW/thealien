@@ -185,10 +185,21 @@ window.g = new Game({
                 renderables['walk5'],
                 renderables['walk6'],
                 renderables['walk7']
+            ],
+            jump_frames = [
+                renderables['jump0'],
+                renderables['jump1'],
+                renderables['jump2'],
+                renderables['jump3'],
+                renderables['jump4']
             ];
 
-        animations.idle = new Animation(idle_frames, 15, true);
-        animations.walk = new Animation(walk_frames, 15, true);
+        animations.idleleft = new Animation(idle_frames, 15, true, mMath.flipx());
+        animations.idleright = new Animation(idle_frames, 15, true);
+        animations.walkleft = new Animation(walk_frames, 15, true, mMath.flipx());
+        animations.walkright = new Animation(walk_frames, 15, true);
+        animations.jumpleft = new Animation(jump_frames, 15, false, mMath.flipx());
+        animations.jumpright = new Animation(jump_frames, 15, false);
 
         resources.animations = animations;
         return resources;
@@ -212,9 +223,13 @@ window.g = new Game({
         entities.push(new Entity("man", [
             //new RenderableTexturedRect("texrect", 32, 32, sprites.jetroid.jump2),
             new Animatable("player", {
-                idle: resources.animations.idle,
-                walk: resources.animations.walk
-            }, "idle"),
+                idleleft: resources.animations.idleleft,
+                idleright: resources.animations.idleright,
+                walkleft: resources.animations.walkleft,
+                walkright: resources.animations.walkright,
+                jumpleft: resources.animations.jumpleft,
+                jumpright: resources.animations.jumpright
+            }, "idleright"),
             new Position("pos3", vec3(83, 450)),
             new Movable("mov1", vec2(0, 0), undefined, 10),
             new AABBCollidable("man_collider", 32, 32),

@@ -29,13 +29,12 @@ export default class PlayerControllerSystem extends GameSystem {
                 const xmotion = state['xmotion'];
                 if (xmotion === 'idle') {
                     movable.velocity.x = 0;
-                    animatable.current = "idle";
                 } else if (xmotion === 'walkleft') {
                     movable.velocity.x = -400;
-                    animatable.current = "walk";
+                    movable.facing = -1;
                 } else if (xmotion === 'walkright') {
                     movable.velocity.x = 400;
-                    animatable.current = "walk";
+                    movable.facing = 1;
                 }
 
 
@@ -48,8 +47,34 @@ export default class PlayerControllerSystem extends GameSystem {
                 } else if (ymotion === 'inair') {
 
                 }
+
+                PlayerControllerSystem.resolveAnimation(state, movable, animatable);
             },
             this.lock
         );
     }
+
+    static resolveAnimation(state, movable, animatable) {
+        "use strict";
+        const xmotion = state['xmotion'],
+            ymotion = state['ymotion'];
+        let animation;
+
+        if (ymotion === 'ground') {
+            if (xmotion === 'idle') {
+                animation = 'idle';
+            } else {
+                animation = 'walk';
+            }
+        } else {
+            animation = 'jump';
+        }
+
+        animation += (movable.facing === 1) ? "right" : "left";
+
+        animatable.current = animation;
+    }
+
+
+
 }

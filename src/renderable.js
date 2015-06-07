@@ -2,7 +2,7 @@
  * Created by faide on 5/7/2015.
  */
 
-import {vMath,  color} from './utils.js';
+import {vMath,  color, mMath} from './utils.js';
 import {Component} from './component.js';
 
 class RenderableSolidRect extends Component {
@@ -42,7 +42,7 @@ class RenderableSolidRect extends Component {
 
 class RenderableTexturedRect extends Component {
     constructor(c_name, half_width = 0, half_height = 0, tex_region = null, opacity = 1,
-                origin_x = 0, origin_y = 0, origin_z = 0) {
+                transform = mMath.i(), origin_x = 0, origin_y = 0, origin_z = 0) {
         super(c_name, "renderable");
 
 
@@ -54,6 +54,7 @@ class RenderableTexturedRect extends Component {
 
         this.initialized = false;
         this.gl_texture_id = -1;
+        this.transform = transform;
 
         this.sprite = tex_region;
 

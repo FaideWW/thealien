@@ -54,6 +54,7 @@ class Movable extends Component {
         this.velocity = velocity;
         this.acceleration = acceleration;
         this.mass = mass;
+        this.facing = 1; // default to face right
 
         this.__onground = false;
     }

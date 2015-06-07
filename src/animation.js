@@ -5,6 +5,7 @@
 import GameSystem from './system.js';
 import {Component, Registry} from './component.js';
 import {RenderableTexturedRect} from './renderable.js';
+import {mMath} from './utils.js';
 
 let uid = 0;
 
@@ -42,6 +43,11 @@ class AnimationSystem extends GameSystem {
                     if (animation.current_frame < num_frames - 1 || animation.repeatable) {
                         animation.current_frame = (animation.current_frame + 1) % num_frames;
 
+                        // reconcile transform matrices between animation and frames
+                        if (animation.frames[animation.current_frame].transform !== animation.transform) {
+                            animation.frames[animation.current_frame].transform = animation.transform;
+                        }
+
                         // overwrite current renderable
                         e.add(animation.frames[animation.current_frame]);
                     }
@@ -56,7 +62,7 @@ class AnimationSystem extends GameSystem {
 }
 
 class Animation {
-    constructor(frames, framerate, repeatable = true) {
+    constructor(frames, framerate, repeatable = true, transform = mMath.i()) {
         "use strict";
 
         this._frames = frames;
@@ -65,6 +71,8 @@ class Animation {
 
         this.current_frame = 0;
         this.current_time = 0;
+
+        this.transform = transform;
 
     }
 
