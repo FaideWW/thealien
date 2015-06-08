@@ -8,39 +8,62 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat'),
     newer = require('gulp-newer'),
-    del = require('del'),
+    clean = require('gulp-clean'),
+    uglify = require('gulp-uglify'),
+    babelify = require('babelify'),
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
+    uglifyify = require('uglifyify'),
 
 
     path = {
         src: {
-            js: 'src/**/*.js'
+            alien: 'src/**/*.js'
         },
         dist: {
-            js: "dist/"
+            alien: "dist/"
         }
+    },
+    options = {
+        modules: 'amd',
+        stage: 0
     };
 
-gulp.task('babel', function () {
-    return gulp.src(path.src.js)
-        .pipe(newer(path.dist.js))
+gulp.task('build:dev', function () {
+    return gulp.src(path.src.alien)
+        .pipe(newer(path.dist.alien))
         .pipe(sourcemaps.init())
-        .pipe(babel({
-            modules: 'amd',
+        .pipe(babel(options))
+        .pipe(sourcemaps.write("."))
+        .pipe(gulp.dest(path.dist.alien));
+});
+
+// TODO: is there a way to make this more consistent with build:dev?
+gulp.task('build:production', function () {
+    browserify({
+        entries: 'src/main.js',
+        debug: true
+    })
+        .transform(babelify.configure({
             stage: 0
         }))
-        .pipe(sourcemaps.write("."))
-        .pipe(gulp.dest(path.dist.js));
+        .transform(uglifyify)
+        .bundle()
+        .pipe(source('main.js'))
+        .pipe(gulp.dest('./dist'));
 });
+
+//gulp.task('build:production', function () {
+//    return gulp.src(path.src.alien)
+//        .pipe(sourcemaps.init())
+//        .pipe(babel({stage: 0}))
+//        .pipe(concat('all.js'))
+//        .pipe(uglify())
+//        .pipe(sourcemaps.write("."))
+//        .pipe(gulp.dest(path.dist.alien));
+//});
 
 gulp.task('clean', function(cb) {
-    return del(['dist'], cb);
+    return gulp.src('dist', {read: false})
+        .pipe(clean());
 });
-
-//gulp.task('babelshort', function () {
-//    return gulp.src(path.src.js)
-//        .pipe(sourcemaps.init())
-//        .pipe(concat("all.js"))
-//        .pipe(babel({modules: 'amd'}))
-//        .pipe(sourcemaps.write("."))
-//        .pipe(gulp.dest(path.dist.js));
-//});
