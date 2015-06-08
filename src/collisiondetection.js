@@ -64,7 +64,6 @@ export default class CollisionDetectionSystem extends GameSystem {
 
                             collision_table.push(entity1.id, entity2.id);
 
-                            console.log(`collision: ${entity1.name} ${entity2.name}`);
                         }
                     }
                 }
@@ -231,20 +230,23 @@ export default class CollisionDetectionSystem extends GameSystem {
             return manifold;
         } else {
 
-            manifold.t = entryTime;
             if (xEntry > yEntry) {
-                if (xInvEntry < 0) {
+                if (xInvEntry < 0 && (c1.active_faces[LEFT] === true && c2.active_faces[RIGHT] === true)) {
+                    manifold.t = entryTime;
                     manifold.xnormal = 1;
                     manifold.ynormal = 0;
-                } else {
+                } else if (c1.active_faces[RIGHT] === true && c2.active_faces[LEFT] === true) {
+                    manifold.t = entryTime;
                     manifold.xnormal = -1;
                     manifold.ynormal = 0;
                 }
             } else {
-                if (yInvEntry < 0) {
+                if (yInvEntry < 0 && (c1.active_faces[TOP] === true && c2.active_faces[BOTTOM] === true)) {
+                    manifold.t = entryTime;
                     manifold.xnormal = 0;
                     manifold.ynormal = 1;
-                } else {
+                } else if (c1.active_faces[BOTTOM] === true && c2.active_faces[TOP] === true) {
+                    manifold.t = entryTime;
                     manifold.xnormal = 0;
                     manifold.ynormal = -1;
                 }
@@ -289,7 +291,6 @@ export default class CollisionDetectionSystem extends GameSystem {
                 }
             } else if (offset.y < 0 && offset.y > -minkowski_aabb_hh) {
                 // quadrant 1 collision
-                debugger;
                 if (xdifference < ydifference && (c1.active_faces[RIGHT] === true && c2.active_faces[LEFT] === true)) {
                     // right face
                     manifold.xnormal = -1;

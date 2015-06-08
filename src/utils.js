@@ -46,7 +46,7 @@ let vec_ops = {
     rot:    (v, r)   => vec2(v.x * cos(r) - v.y * sin(r), v.x * sin(r) + v.y * cos(r)),
 
     s_proj: (v1, v2) => vec_ops.dot(v1, v2) / vec_ops.mag(v2),
-    v_proj: (v1, v2) => vec_ops.mul(v2, vec_ops.dot(v1, v2) / vec_ops.dot(v1, v2)),
+    v_proj: (v1, v2) => vec_ops.mul(v2, vec_ops.dot(v1, v2) / vec_ops.dot(v2, v2)),
     v_rej:  (v1, v2) => vec_ops.sub(v1, vec_ops.v_proj(v1, v2))
 };
 

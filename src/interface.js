@@ -97,7 +97,7 @@ export default class Interface {
                 strings provided by KeyboardEVent.key.  it's on the to-do list
 
              */
-            key = String.fromCharCode(e.keyCode);
+            key = String.fromCharCode(e.keyCode).toLowerCase();
         }
         let assignment = this.__key_state[key];
         if (e.type === 'keydown' && !assignment) {

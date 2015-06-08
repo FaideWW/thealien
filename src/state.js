@@ -17,7 +17,7 @@ import {Component, Registry} from './component.js';
  *
  * each flag has a corresponding state system that manages that particular state
  *
- * TODO: abstract this so it can be set up from main.js
+ * TODO: abstract this so it can be set up from main.alien
  */
 
 let uid = 0;
