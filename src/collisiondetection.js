@@ -9,6 +9,11 @@ import {resolveSweptAABB, resolveDiscreteAABB} from './collisionresolution.js';
 
 let uid = 0;
 
+const TOP = 0,
+    RIGHT = 1,
+    BOTTOM = 2,
+    LEFT = 3;
+
 /**
  * TODO: heavy refactoring needed here.  make new swept functions more readable and less fragile
  */
@@ -27,7 +32,6 @@ export default class CollisionDetectionSystem extends GameSystem {
             return collision_table.some((pair) => {
                 return (pair[0] === e1.id && pair[1] === e2.id ||
                         pair[1] === e1.id && pair[0] === e2.id);
-
             });
         };
 
@@ -99,6 +103,9 @@ export default class CollisionDetectionSystem extends GameSystem {
 
                     if (is_collidable) {
                         let tile_position = vMath.vec2((x + 0.5) * tilewidth, (y + 0.5) * tileheight);
+
+                        // disable inner edges
+                        map_collidable.active_faces = is_collidable;
 
                         // we can safely assume (for now) that map_collidable is always an AABB
                         if (collidable.type === 'AABB') {
@@ -265,29 +272,30 @@ export default class CollisionDetectionSystem extends GameSystem {
         let xdifference = Math.abs(Math.abs(minkowski_aabb_hw) - Math.abs(offset.x)),
             ydifference = Math.abs(Math.abs(minkowski_aabb_hh) - Math.abs(offset.y));
 
+        //console.log(offset.x, offset.y);
         if (offset.x > 0 && offset.x < minkowski_aabb_hw) {
             if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
-                // quadrant 1 collision
-                if (xdifference < ydifference) {
+                // quadrant 4 collision
+                if (xdifference < ydifference && (c1.active_faces[RIGHT] === true && c2.active_faces[LEFT] === true)) {
                     // right face
                     manifold.xnormal = -1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
-                } else {
+                } else if (c1.active_faces[BOTTOM] === true && c2.active_faces[TOP] === true) {
                     // bottom
                     manifold.xnormal = 0;
                     manifold.ynormal = -1;
                     manifold.depth = ydifference;
                 }
             } else if (offset.y < 0 && offset.y > -minkowski_aabb_hh) {
-                // quadrant 4 collision
-                if (xdifference < ydifference) {
+                // quadrant 1 collision
+                debugger;
+                if (xdifference < ydifference && (c1.active_faces[RIGHT] === true && c2.active_faces[LEFT] === true)) {
                     // right face
-
                     manifold.xnormal = -1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
-                } else {
+                } else if (c1.active_faces[TOP] === true && c2.active_faces[BOTTOM] === true) {
                     // top face
                     manifold.xnormal = 0;
                     manifold.ynormal = 1;
@@ -296,26 +304,26 @@ export default class CollisionDetectionSystem extends GameSystem {
             }
         } else if (offset.x < 0 && offset.x > -minkowski_aabb_hw) {
             if (offset.y > 0 && offset.y < minkowski_aabb_hh) {
-                // quadrant 2 collision
-                if (xdifference < ydifference) {
+                // quadrant 3 collision
+                if (xdifference < ydifference && (c1.active_faces[LEFT] === true && c2.active_faces[RIGHT] === true)) {
                     // left face
                     manifold.xnormal = 1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
-                } else {
+                } else if (c1.active_faces[BOTTOM] === true && c2.active_faces[TOP] === true) {
                     // bottom face
                     manifold.xnormal = 0;
                     manifold.ynormal = -1;
                     manifold.depth = ydifference;
                 }
             } else if (offset.y < 0 && offset.y > -minkowski_aabb_hh) {
-                // quadrant 3 collision
-                if (xdifference < ydifference) {
+                // quadrant 2 collision
+                if (xdifference < ydifference && (c1.active_faces[LEFT] === true && c2.active_faces[RIGHT] === true)) {
                     // left face
                     manifold.xnormal = 1;
                     manifold.ynormal = 0;
                     manifold.depth = xdifference;
-                } else {
+                } else if (c1.active_faces[TOP] === true && c2.active_faces[BOTTOM] === true) {
                     // top face
                     manifold.xnormal = 0;
                     manifold.ynormal = 1;

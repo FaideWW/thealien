@@ -28,23 +28,39 @@ function processTiles(tile_sprites, tile_halfdims) {
 
 function processMap(map_data) {
     "use strict";
-    let collision = [];
-    let render    = [];
+    const collision = [];
+    const render    = [];
     for (let layer of map_data) {
         let collision_layer = [];
         let render_layer    = [];
 
-        for (let row of layer.data) {
-            let collision_row = [];
-            let render_row    = [];
-
-            for (let tile of row) {
+        for (let y = 0; y < layer.data.length; y += 1) {
+            const row = layer.data[y],
+                collision_row = [],
+                render_row    = [];
+            for (let x = 0; x < row.length; x += 1) {
+                const tile = row[x];
                 if (layer.collidable) {
-                    collision_row.push(!!tile);
+                    const map = layer.data;
+
+                    // determine active faces
+                    const active_faces = [
+                        // top
+                        !(y > 0 && !!map[y - 1][x]),
+
+                        // right
+                        !(x < map[y].length - 1 && !!map[y][x + 1]),
+
+                        // bottom
+                        !(y < map.length - 1 && !!map[y + 1][x]),
+
+                        !(x > 0 && !!map[y][x - 1])
+                    ];
+
+                    collision_row.push((tile) ? active_faces : false);
                 }
                 render_row.push(tile);
             }
-
             if (layer.collidable) {
                 collision_layer.push(collision_row);
             }

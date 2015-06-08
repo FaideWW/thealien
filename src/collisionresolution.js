@@ -100,14 +100,15 @@ function resolveDiscreteAABB(entity, manifold) {
     const fposition = Registry.getFlag('position'),
         fmovable = Registry.getFlag('movable'),
         position = entity.get(fposition),
-        movable = entity.get(fmovable),
-        dot = vMath.dot(movable.velocity, vMath.vec2(manifold.xnormal, manifold.ynormal));
+        movable = entity.get(fmovable);
 
     position.x += manifold.xnormal * manifold.depth;
     position.y += manifold.ynormal * manifold.depth;
 
-    movable.velocity.x = dot * manifold.ynormal;
-    movable.velocity.y = dot * manifold.xnormal;
+    // project along contact normal
+
+    movable.velocity = vMath.v_proj(movable.velocity, {x: manifold.xnormal, y: manifold.ynormal});
+
 }
 
 export {
