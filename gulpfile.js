@@ -40,7 +40,7 @@ gulp.task('build:dev', function () {
 
 // TODO: is there a way to make this more consistent with build:dev?
 gulp.task('build:production', function () {
-    browserify({
+    return browserify({
         entries: [
             'node_modules/babel-core/browser-polyfill.js',
             'src/main.js'
@@ -70,3 +70,5 @@ gulp.task('clean', function(cb) {
     return gulp.src('dist', {read: false})
         .pipe(clean());
 });
+
+gulp.task('default', ['clean', 'build:production']);

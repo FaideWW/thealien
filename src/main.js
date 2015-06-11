@@ -7,8 +7,6 @@ import {Registry} from './component.js';
 import {RenderableSolidRect, RenderableTexturedRect} from './renderable.js';
 import Position from './position.js';
 import {vMath, mMath, color} from './utils.js';
-import solid_rect_shaders from "./shaders/solidrect.glsl.js";
-import textured_rect_shaders from "./shaders/texrect.glsl.js";
 import Scene from './scene.js';
 import Entity from './entity.js';
 import {PhysicsSystem, Movable} from './physics.js';

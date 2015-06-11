@@ -11,11 +11,11 @@ Clone the repository.  Run
 
     npm install
     
-    gulp babel
+    gulp
     
     python3 -m http.server
 
-Navigate to `http://localhost:[PORT]/test.html` where `[PORT]` is the port used by the python server.
+Navigate to `http://localhost:[PORT]/index.html` where `[PORT]` is the port used by the python server.
 
 
 
