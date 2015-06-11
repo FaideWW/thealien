@@ -3,14 +3,14 @@
  */
 
 import GameSystem from './system.js';
-import {Registry} from './component.js';
+import {Component, Registry} from './component.js';
 
 let uid = 0;
 
-export default class PlayerControllerSystem extends GameSystem {
+class PlayerControllerSystem extends GameSystem {
     constructor(s_id = `playercontroller${uid++}`) {
         "use strict";
-        super(s_id, ['state', 'movable', 'animatable'])
+        super(s_id, ['state', 'movable', 'animatable', "controllable"])
     }
 
     update(scene, dt) {
@@ -39,11 +39,15 @@ export default class PlayerControllerSystem extends GameSystem {
 
 
                 const ymotion = state['ymotion'];
+                console.log(ymotion);
+
                 if (ymotion === 'ground') {
                     //movable.velocity.y = 0;
                 } else if (ymotion === 'jump') {
                     movable.__onground = false;
-                    movable.velocity.y = -1000;
+                    movable.velocity.y = -800;
+                } else if (ymotion === 'jumphold') {
+                    movable.velocity.y = -800;
                 } else if (ymotion === 'inair') {
 
                 }
@@ -74,7 +78,13 @@ export default class PlayerControllerSystem extends GameSystem {
 
         animatable.current = animation;
     }
-
-
-
 }
+
+class PlayerControllable extends Component {
+    constructor(c_name) {
+        "use strict";
+        super(c_name, "controllable");
+    }
+}
+
+export {PlayerControllable, PlayerControllerSystem};

@@ -41,7 +41,7 @@ export default class Interface {
         this.__window.addEventListener(event_name, this._listener.bind(this));
     }
 
-    process() {
+    process(timestamp) {
         "use strict";
         // digest queue
         let event;
@@ -49,9 +49,9 @@ export default class Interface {
             event = this.__event_queue.splice(0,1)[0];
 
             if (event.type === 'mousedown' || event.type === 'mouseup' || event.type === 'mousemove') {
-                this.handleMouseEvent(event);
+                this.handleMouseEvent(event, timestamp);
             } else if (event.type === 'keydown' || event.type === 'keyup') {
-                this.handleKeyEvent(event);
+                this.handleKeyEvent(event, timestamp);
             }
         }
     }
@@ -83,7 +83,7 @@ export default class Interface {
     }
 
     // TODO: add a compatibility shim to support browsers without KeyboardEvent.key
-    handleKeyEvent(e) {
+    handleKeyEvent(e, timestamp) {
         "use strict";
         let key = "";
         if (e.key) {
@@ -103,7 +103,7 @@ export default class Interface {
         if (e.type === 'keydown' && !assignment) {
             // stores the time that the key was first pressed
             // if you want to compute the "time held", just subtract this from the current time
-            assignment = e.timeStamp;
+            assignment = timestamp;
         } else if (e.type === 'keyup') {
             assignment = 0;
         } else {

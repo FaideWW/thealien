@@ -19,6 +19,8 @@ export default class AABBCollidable extends Component {
         // [TOP , RIGHT , BOTTOM , LEFT]
         this.active_faces = [true, true, true, true];
 
+
+
         this.__collided = [];
     }
 }

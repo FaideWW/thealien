@@ -19,7 +19,7 @@ import AABBCollidable from './collidable.js';
 import Map from './map.js';
 import SpriteLoader from "./sprite.js";
 import {Animatable, AnimationSystem, Animation} from "./animation.js";
-import PlayerControllerSystem from "./controller.js";
+import {PlayerControllable, PlayerControllerSystem} from "./controller.js";
 
 let canvas = document.querySelector("#screen");
 
@@ -236,7 +236,8 @@ window.g = new Game({
             new Stateful("playerstate", {
                 xmotion: "idle",
                 ymotion: "inair"
-            })
+            }),
+            new PlayerControllable("player_control")
         ]));
 
         //entities.push(new Entity("man2", [

@@ -115,9 +115,25 @@ class YMotionStateManager extends StateManager {
         }
     }
 
-    jump(stateful) {
+    jump(stateful, scene) {
         "use strict";
-        this._enter(stateful, "inair");
+        const keys = scene.input.key;
+        if (keys.w) {
+            this._enter(stateful, "jumphold");
+        } else {
+            this._enter(stateful, "inair");
+        }
+    }
+
+    jumphold(stateful, scene) {
+        "use strict";
+
+        const keys = scene.input.key;
+        const current_time = scene.timestamp;
+        console.log(keys.w, current_time);
+        if (!keys.w || current_time - keys.w > 150) {
+            this._enter(stateful, "inair");
+        }
     }
 
     inair(stateful, scene, e) {

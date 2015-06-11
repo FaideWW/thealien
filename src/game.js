@@ -151,13 +151,15 @@ export default class {
     // ========================
 
     // update systems
-    __updateSystems(dt) {
+    __updateSystems(dt, timestamp) {
         'use strict';
 
-        this.__input.process();
+        this.__input.process(timestamp);
 
         if (this.activeScene) {
             const scene = this.activeScene;
+
+            scene.timestamp = timestamp;
 
             this.__phaseorder.forEach((phase_id) => {
                 let systems = this.__phases[phase_id];
@@ -180,7 +182,7 @@ export default class {
         let dt = timestamp - this.__last_time;
 
         if (this.__loaded) {
-            this.__updateSystems(dt);
+            this.__updateSystems(dt, timestamp);
             this.__user_persist = this.__user_defined_step(dt, this.__user_persist);
         }
 
