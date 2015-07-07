@@ -5,22 +5,20 @@
 import {Component} from './component.js';
 
 export default class AABBCollidable extends Component {
-    constructor(c_name, half_width = 0, half_height = 0, reaction = "slide") {
-        "use strict";
-        super(c_name, "collidable");
+    constructor(cName, halfWidth = 0, halfHeight = 0, reaction = 'slide') {
+      'use strict';
+      super(cName, 'collidable');
 
-        this.type = 'AABB';
+      this.type = 'AABB';
 
-        this.hw = half_width;
-        this.hh = half_height;
+      this.hw = halfWidth;
+      this.hh = halfHeight;
 
-        this.reaction = reaction;
+      this.reaction = reaction;
 
-        // [TOP , RIGHT , BOTTOM , LEFT]
-        this.active_faces = [true, true, true, true];
+      // [TOP , RIGHT , BOTTOM , LEFT]
+      this.activeFaces = [true, true, true, true];
 
-
-
-        this.__collided = [];
+      this.__collided = [];
     }
 }

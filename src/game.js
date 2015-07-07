@@ -2,11 +2,11 @@
  * Created by faide on 15-03-30.
  */
 
-import Entity from "./entity.js";
-import WebGLRenderer from "./render.js";
-import ResourceManager from "./resource.js";
-import Interface from "./interface.js";
-import {rAF, cRAF, vec2} from "./utils.js";
+import Entity from './entity.js';
+import WebGLRenderer from './render.js';
+import ResourceManager from './resource.js';
+import Interface from './interface.js';
+import {rAF, cRAF, vec2} from './utils.js';
 
 /**
  * class Game
@@ -16,247 +16,251 @@ import {rAF, cRAF, vec2} from "./utils.js";
  */
 export default class {
 
-    /**
-     * Binds an instance to the current/designated platform.
-     * Also producesa few default supersystems if none are provided
-     *
-     * For now, only the html5 platform is supported (canvas, web audio, browser-based events)
-     *
-     *
-     * @param canvasSelector
-     * @param shaders
-     * @param resolution
-     * @param resources
-     * @param sprites
-     * @param render
-     * @param audio
-     * @param event
-     * @param phases
-     * @param systems
+  /**
+   * Binds an instance to the current/designated platform.
+   * Also producesa few default supersystems if none are provided
+   *
+   * For now, only the html5 platform is supported (canvas, web audio, browser-based events)
+   *
+   *
+   * @param canvasSelector
+   * @param shaders
+   * @param resolution
+   * @param resources
+   * @param sprites
+   * @param render
+   * @param audio
+   * @param event
+   * @param phases
+   * @param systems
+   */
+  constructor({canvasSelector, shaders, resolution, resources, sprites, render, audio, event, phases, systems}) {
+    'use strict';
+    let getCanvasEl = (selector = '') => document.querySelector(selector);
+
+    // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
+    this.canvas = getCanvasEl(canvasSelector);
+
+    this.__loaded = false;
+
+    this.__userDefinedStep = () => this;
+
+    this.__userPersist = {};
+
+    this.__scenes = {};
+    this.activeScene = null;
+    this.__lastTime = 0;
+
+    this.__input = new Interface(window, vec2(this.canvas.offsetLeft, this.canvas.offsetTop));
+
+    if (!render) {
+      this.render = render || new WebGLRenderer(undefined, {
+            el: this.canvas,
+            shaders: shaders,
+            resolution: resolution
+          });
+
+      //if (!this.render.success) {
+      //  // fallback to canvas rendering
+      //}
+    }
+
+    this.__pipeline = Promise.resolve({});
+
+    this.__phaseorder = phases || [];
+    this.__phases = {};
+    this.__phaseorder.forEach((phase) => this.__phases[phase] = systems[phase] || []);
+
+    /*
+
+     The following is no longer relevant; keeping it here for posterity
+
+     if (!audio) {
+     // create audio system
+     }
+
+     if (!event) {
+     // create event system
+     }
      */
-    constructor({canvasSelector, shaders, resolution, resources, sprites, render, audio, event, phases, systems}) {
-        'use strict';
-        let getCanvasEl = (selector = "") => document.querySelector(selector);
+  }
 
-        // if Alien becomes platform-agnostic, this document.querySelector should be moved to its own module
-        this.canvas = getCanvasEl(canvasSelector);
+  get scenes() {
+    'use strict';
+    return this.__scenes;
+  }
 
-        this.__loaded = false;
-        this.__resources_loaded = () => {};
-        this.__user_defined_step = () => {};
+  get input() {
+    'use strict';
+    return this.__input;
+  }
 
-        this.__user_persist = {};
+  // ==============================
+  //  Declaration chaining methods
+  // =============================
 
-        this.__scenes = {};
-        this.activeScene = null;
-        this.__last_time = 0;
+  resource(resources) {
+    'use strict';
+    this.__pipeline = this.__pipeline
+        .then(() => {
+          return ResourceManager.loadResources(resources);
+        })
 
-        this.__input = new Interface(window, vec2(this.canvas.offsetLeft, this.canvas.offsetTop));
+        .catch((error) => console.error(`Error loading resource: ${error}`));
 
+    return this;
+  }
 
+  ready(callback) {
+    'use strict';
+    this.__pipeline = this.__pipeline
+        .then(callback.bind(this))
+        .then(() => {
+          this.__loaded = true;
+        })
 
-        if (!render) {
-            this.render = render || new WebGLRenderer(undefined, {
-                el: this.canvas,
-                shaders: shaders,
-                resolution: resolution
-            });
-            if (!this.render.success) {
-                // fallback to canvas rendering
-            }
-        }
+        .catch((error) => {
+          console.error(error)
+        });
 
-        this.__pipeline = Promise.resolve({});
+    // final link in the pipeline chain; initialize systems, and do other internal processing/error checking
 
-        this.__phaseorder = phases || [];
-        this.__phases = {};
-        this.__phaseorder.forEach((phase) => this.__phases[phase] = systems[phase] || []);
+    return this;
+  }
 
-        /*
+  /**
+   * general 'then' extension for injecting extra steps into the pipeline
+   *
+   * NOTE: does no error handling.  If you want to catch errors, use .catch()
+   */
+  then(callback) {
+    'use strict';
+    this.__pipeline = this.__pipeline
+        .then(callback.bind(this));
+    return this;
+  }
 
-        The following is no longer relevant; keeping it here for posterity
+  /**
+   * Counterpart to then().  Handles uncaught errors thrown/rejections created by the pipeline chain
+   */
+  onFail(callback) {
+    'use strict';
+    this.__pipeline = this.__pipeline
+        .catch(callback.bind(this));
 
-        if (!audio) {
-            // create audio system
-        }
+    return this;
+  }
 
-        if (!event) {
-            // create event system
-        }
-        */
+  // ========================
+  //  Private loop functions
+  // ========================
+
+  // update systems
+  __updateSystems(dt, timestamp) {
+    'use strict';
+
+    this.__input.process(timestamp);
+
+    if (this.activeScene) {
+      const scene = this.activeScene;
+
+      scene.timestamp = timestamp;
+
+      this.__phaseorder.forEach((phaseID) => {
+        let systems = this.__phases[phaseID];
+        systems.forEach((system) => system.update(scene, dt));
+      });
+
+      //draw
+      this.render.update(scene, dt);
     }
 
-    get scenes() {
-        'use strict';
-        return this.__scenes;
+  }
+
+  __tick(timestamp) {
+    'use strict';
+
+    if (this.__lastTime === 0) {
+      this.__lastTime = timestamp;
     }
 
-    get input() {
-        'use strict';
-        return this.__input;
+    let dt = timestamp - this.__lastTime;
+
+    if (this.__loaded) {
+      this.__updateSystems(dt, timestamp);
+      this.__userPersist = this.__userDefinedStep(dt, this.__userPersist);
     }
 
-    // ==============================
-    //  Declaration chaining methods
-    // =============================
+    this.__lastTime = timestamp;
+    this.__rafID = rAF(this.__tick.bind(this));
+  }
 
-    resource(resources) {
-        'use strict';
-        this.__pipeline = this.__pipeline
-            .then(() => { return ResourceManager.loadResources(resources); })
-            .catch((error) => console.error(`Error loading resource: ${error}`));
+  step(callback) {
+    'use strict';
+    this.__userDefinedStep = callback.bind(this);
+    return this;
+  }
 
-        return this;
+  run() {
+    'use strict';
+    console.log('run');
+    this.__tick(0);
+    return this;
+  }
+
+  stop() {
+    'use strict';
+    cRAF(this.__rafID);
+    return this;
+  }
+
+  // ==================
+  //  Scene Management
+  // ==================
+
+  addScene(scene) {
+    'use strict';
+    this.__scenes[scene.id] = scene;
+  }
+
+  removeScene(sceneOrID) {
+    'use strict';
+    if (this.__scenes[sceneOrID]) {
+      delete this.__scenes[sceneOrID];
+    } else if (this.__scenes[sceneOrID.id]) {
+      delete this.__scenes[sceneOrID.id];
+    }
+  }
+
+  loadScene(sceneOrID) {
+    'use strict';
+    if (this.__scenes[sceneOrID]) {
+      this.activeScene = this.__scenes[sceneOrID];
+    } else if (this.__scenes[sceneOrID.id]) {
+      this.activeScene = this.__scenes[sceneOrID.id];
     }
 
-    ready(callback) {
-        'use strict';
-        this.__pipeline = this.__pipeline
-            .then(callback.bind(this))
-            .then(() => {
-                this.__loaded = true;
-            })
-            .catch((error) => { console.error(error) });
+    this.activeScene.__inputstate = this.input;
+  }
 
-        // final link in the pipeline chain; initialize systems, and do other internal processing/error checking
+  // ==============================
+  //  Systems and phase management
+  // ==============================
 
-        return this;
+  addPhase(phaseID, index) {
+    'use strict';
+    this.__phaseorder.splice(index, 0, phaseID);
+    this.__phases[phaseID] = [];
+  }
+
+  addSystem(system, phaseID) {
+    'use strict';
+    if (!this.__phases[phaseID]) {
+
+      // don't auto-add phases; these need to be explicit
+      return;
     }
 
-    /**
-     * general 'then' extension for injecting extra steps into the pipeline
-     *
-     * NOTE: does no error handling.  If you want to catch errors, use .catch()
-     */
-    then(callback) {
-        "use strict";
-        this.__pipeline = this.__pipeline
-            .then(callback.bind(this));
-        return this;
-    }
-
-    /**
-     * Counterpart to then().  Handles uncaught errors thrown/rejections created by the pipeline chain
-     */
-    catch(callback) {
-        "use strict";
-        this.__pipeline = this.__pipeline
-            .catch(callback.bind(this));
-
-        return this;
-    }
-
-    // ========================
-    //  Private loop functions
-    // ========================
-
-    // update systems
-    __updateSystems(dt, timestamp) {
-        'use strict';
-
-        this.__input.process(timestamp);
-
-        if (this.activeScene) {
-            const scene = this.activeScene;
-
-            scene.timestamp = timestamp;
-
-            this.__phaseorder.forEach((phase_id) => {
-                let systems = this.__phases[phase_id];
-                systems.forEach((system) => system.update(scene, dt));
-            });
-
-            //draw
-            this.render.update(scene, dt);
-        }
-
-
-    }
-
-    __tick(timestamp) {
-        'use strict';
-
-        if (this.__last_time === 0) {
-            this.__last_time = timestamp;
-        }
-        let dt = timestamp - this.__last_time;
-
-        if (this.__loaded) {
-            this.__updateSystems(dt, timestamp);
-            this.__user_persist = this.__user_defined_step(dt, this.__user_persist);
-        }
-
-        this.__last_time = timestamp;
-        this.__raf_id = rAF(this.__tick.bind(this));
-    }
-
-    step(callback) {
-        'use strict';
-        this.__user_defined_step = callback.bind(this);
-        return this;
-    }
-
-    run() {
-        'use strict';
-        console.log('run');
-        this.__tick(0);
-        return this;
-    }
-
-    stop() {
-        'use strict';
-        cRAF(this.__raf_id);
-        return this;
-    }
-
-    // ==================
-    //  Scene Management
-    // ==================
-
-    addScene(scene) {
-        'use strict';
-        this.__scenes[scene.id] = scene;
-    }
-
-    removeScene(scene_or_id) {
-        'use strict';
-        if (this.__scenes[scene_or_id]) {
-            delete this.__scenes[scene_or_id];
-        } else if (this.__scenes[scene_or_id.id]) {
-            delete this.__scenes[scene_or_id.id];
-        }
-    }
-
-    loadScene(scene_or_id) {
-        'use strict';
-        if (this.__scenes[scene_or_id]) {
-            this.activeScene = this.__scenes[scene_or_id];
-        } else if (this.__scenes[scene_or_id.id]) {
-            this.activeScene = this.__scenes[scene_or_id.id];
-        }
-
-        this.activeScene.__inputstate = this.input;
-    }
-
-
-    // ==============================
-    //  Systems and phase management
-    // ==============================
-
-    addPhase(phase_id, index) {
-        'use strict';
-        this.__phaseorder.splice(index, 0, phase_id);
-        this.__phases[phase_id] = [];
-    }
-
-    addSystem(system, phase_id) {
-        'use strict';
-        if (!this.__phases[phase_id]) {
-
-            // don't auto-add phases; these need to be explicit
-            return;
-        }
-
-        this.__phases[phase_id].push(system);
-    }
+    this.__phases[phaseID].push(system);
+  }
 }

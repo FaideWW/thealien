@@ -6,17 +6,17 @@ import {vec2} from './utils.js';
 import {Component} from './component.js';
 
 export default class Position extends Component {
-    constructor(c_name, x_or_vec = 0, y = 0, z = 0) {
-        "use strict";
-        super(c_name, "position");
-        if (x_or_vec.y) {
-            this.x = x_or_vec.x;
-            this.y = x_or_vec.y;
-            this.z = x_or_vec.z;
-        } else {
-            this.x = x_or_vec;
-            this.y = y;
-            this.z = z;
-        }
+  constructor(cName, xOrVec = 0, y = 0, z = 0) {
+    'use strict';
+    super(cName, 'position');
+    if (xOrVec.y) {
+      this.x = xOrVec.x;
+      this.y = xOrVec.y;
+      this.z = xOrVec.z;
+    } else {
+      this.x = xOrVec;
+      this.y = y;
+      this.z = z;
     }
+  }
 }

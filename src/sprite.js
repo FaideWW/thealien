@@ -4,35 +4,36 @@
 
 import {TextureRegion} from './texture.js';
 
-export default function SpriteLoader (textures, sprite_map) {
-    "use strict";
+export default function SpriteLoader(textures, spriteMap) {
+  'use strict';
 
-    let sprites = {};
-    for (let s in sprite_map) {
-        if (sprite_map.hasOwnProperty(s)) {
-            let sprite = sprite_map[s];
-            if (!sprite.texture) {
-                console.error(`Texture missing: ${sprite.texture}`);
-                return;
-            }
+  let sprites = {};
+  for (let s in spriteMap) {
+    if (spriteMap.hasOwnProperty(s)) {
+      let sprite = spriteMap[s];
+      if (!sprite.texture) {
+        console.error(`Texture missing: ${sprite.texture}`);
+        return;
+      }
 
-            sprites[s] = {};
+      sprites[s] = {};
 
-            for (let r in sprite.sheet) {
-                if (sprite.sheet.hasOwnProperty(r)) {
-                    let texture = sprite.texture;
+      for (let r in sprite.sheet) {
+        if (sprite.sheet.hasOwnProperty(r)) {
+          let texture = sprite.texture;
 
-                    // region data will either be directly accessed, or from a series of properties
-                    let frame = sprite.sheet[r];
+          // region data will either be directly accessed, or from a series of properties
+          let frame = sprite.sheet[r];
 
-                    if (frame.frame) {
-                        frame = frame.frame;
-                    }
-                    sprites[s][r] = new TextureRegion(texture, frame.x, frame.y, frame.w, frame.h);
-                }
-            }
+          if (frame.frame) {
+            frame = frame.frame;
+          }
+
+          sprites[s][r] = new TextureRegion(texture, frame.x, frame.y, frame.w, frame.h);
         }
+      }
     }
+  }
 
-    return sprites;
+  return sprites;
 }

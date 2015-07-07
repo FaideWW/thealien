@@ -10,101 +10,104 @@ import {mMath} from './utils.js';
 let uid = 0;
 
 /*
-Animation piggy-backs off of the state manager; states share a one-to-one relation with animations, for simplicity
+ Animation piggy-backs off of the state manager; states share a one-to-one relation with animations, for simplicity
  */
 
 class AnimationSystem extends GameSystem {
-    constructor(c_id = `animation${uid++}`) {
-        "use strict";
-        super(c_id, ["animatable"])
-    }
+  constructor(cID = `animation${uid++}`) {
+    'use strict';
+    super(cID, ['animatable'])
+  }
 
-    update(scene, dt) {
-        "use strict";
+  update(scene, dt) {
+    'use strict';
 
-        const fanimatable = Registry.getFlag('animatable');
+    const fanimatable = Registry.getFlag('animatable');
 
-        scene.each(
-            (e) => {
-                const animatable = e.get(fanimatable),
-                    current_animation = animatable.current,
-                    last_animation    = animatable.__last,
-                    animation = animatable.animations[animatable.current];
+    scene.each(
+        (e) => {
+          const animatable = e.get(fanimatable);
+          const currentAnimation = animatable.current;
+          const lastAnimation    = animatable.__last;
+          const animation = animatable.animations[animatable.current];
 
-                // if the animation has been swapped, reset the last one
-                if (current_animation !== last_animation) {
-                    animatable.animations[last_animation].current_frame = 0;
-                    animatable.animations[last_animation].current_time  = 0;
-                }
+          // if the animation has been swapped, reset the last one
+          if (currentAnimation !== lastAnimation) {
+            animatable.animations[lastAnimation].currentFrame = 0;
+            animatable.animations[lastAnimation].currentTime  = 0;
+          }
 
-                if (animation.current_time + dt >= animation.frametime) {
-                    const num_frames = animation.frames.length;
-                    // trigger frame step
-                    if (animation.current_frame < num_frames - 1 || animation.repeatable) {
-                        animation.current_frame = (animation.current_frame + 1) % num_frames;
+          if (animation.currentTime + dt >= animation.frametime) {
+            const numFrames = animation.frames.length;
 
-                        // reconcile transform matrices between animation and frames
-                        if (animation.frames[animation.current_frame].transform !== animation.transform) {
-                            animation.frames[animation.current_frame].transform = animation.transform;
-                        }
+            // trigger frame step
+            if (animation.currentFrame < numFrames - 1 || animation.repeatable) {
+              animation.currentFrame = (animation.currentFrame + 1) % numFrames;
 
-                        // overwrite current renderable
-                        e.add(animation.frames[animation.current_frame]);
-                    }
-                }
+              // reconcile transform matrices between animation and frames
+              if (animation.frames[animation.currentFrame].transform !== animation.transform) {
+                animation.frames[animation.currentFrame].transform = animation.transform;
+              }
 
-                animatable.__last = current_animation;
+              // overwrite current renderable
+              e.add(animation.frames[animation.currentFrame]);
+            }
+          }
 
-                animation.current_time = (animation.current_time + dt) % animation.frametime;
-            }, this.lock
-        )
-    }
+          animatable.__last = currentAnimation;
+
+          animation.currentTime = (animation.currentTime + dt) % animation.frametime;
+        },
+
+        this.lock
+    )
+  }
 }
 
 class Animation {
-    constructor(frames, framerate, repeatable = true, transform = mMath.i()) {
-        "use strict";
+  constructor(frames, framerate, repeatable = true, transform = mMath.i()) {
+    'use strict';
 
-        this._frames = frames;
-        this._frametime = 1000 / (framerate || 1);
-        this._repeatable = repeatable;
+    this._frames = frames;
+    this._frametime = 1000 / (framerate || 1);
+    this._repeatable = repeatable;
 
-        this.current_frame = 0;
-        this.current_time = 0;
+    this.currentFrame = 0;
+    this.currentTime = 0;
 
-        this.transform = transform;
+    this.transform = transform;
 
-    }
+  }
 
-    get frames() {
-        "use strict";
-        return this._frames;
-    }
+  get frames() {
+    'use strict';
+    return this._frames;
+  }
 
-    get frametime() {
-        "use strict";
-        return this._frametime;
-    }
+  get frametime() {
+    'use strict';
+    return this._frametime;
+  }
 
-    get repeatable() {
-        "use strict";
-        return this._repeatable;
-    }
+  get repeatable() {
+    'use strict';
+    return this._repeatable;
+  }
 }
 
 class Animatable extends Component {
-    constructor(c_name, animations, default_animation) {
-        "use strict";
-        super(c_name, "animatable");
-        this._animations = animations;
-        this.current = default_animation;
-        this.__last = this.current;
-    }
+  constructor(cName, animations, defaultAnimation) {
+    'use strict';
+    super(cName, 'animatable');
+    this._animations = animations;
+    this.current = defaultAnimation;
+    this.__last = this.current;
+  }
 
-    get animations() {
-        "use strict";
-        return this._animations;
-    }
+  get animations() {
+    'use strict';
+    return this._animations;
+  }
 }
 
 export {AnimationSystem, Animation, Animatable}
