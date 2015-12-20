@@ -28,7 +28,9 @@ function resolveSweptAABB(entity, manifold, dt) {
 
   // TODO: this is one of many different reactions to a collision.  write case for reflection too
 
-  movable.velocity = vMath.vRej(movable.velocity, manifoldV);
+  if (collidable.reaction === 'slide') {
+    movable.velocity = vMath.vRej(movable.velocity, manifoldV);
+  }
 
   // TODO: this is guarding against a very specific interaction.  make it more general
   if (manifold.xnormal === 0 && manifold.ynormal === -1) {

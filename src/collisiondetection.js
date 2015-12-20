@@ -28,12 +28,11 @@ export default class CollisionDetectionSystem extends GameSystem {
     'use strict';
 
     let collisionTable = [];
-    const checkCollisionTable = (e1, e2) => {
-      return collisionTable.some((pair) => {
-        return (pair[0] === e1.id && pair[1] === e2.id ||
-        pair[1] === e1.id && pair[0] === e2.id);
-      });
-    };
+    const checkCollisionTable = ((e1, e2) =>
+      collisionTable.some((pair) =>
+        (pair[0] === e1.id && pair[1] === e2.id || pair[1] === e1.id && pair[0] === e2.id)
+      )
+    );
 
     const fcollidable = Registry.getFlag('collidable');
     const fposition = Registry.getFlag('position');
